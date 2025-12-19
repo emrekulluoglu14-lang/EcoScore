@@ -1,1123 +1,201 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skor & Anket Sistemi</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <div class="container">
-        <!-- ANA SAYFA (GİRİŞ/KAYIT) -->
-        <div class="main-page active" id="main-page">
-            <div class="left-section">
-                <div class="logo">
-                    <i class="fas fa-trophy"></i>
-                    <h1>Skor & Anket Pro</h1>
-                </div>
-                <div class="about-content">
-                    <h2><i class="fas fa-users"></i> Hoş Geldiniz!</h2>
-                    <p>Günlük anketler çöz, puan kazan, liderlik tablosunda yerini al ve oyunlara katıl!</p>
-                    <div class="features">
-                        <div class="feature-item">
-                            <i class="fas fa-poll"></i>
-                            <h4>Günlük Anketler</h4>
-                            <p>Her gün 5 yeni soru ile puan kazan</p>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-fire"></i>
-                            <h4>Streak Sistemi</h4>
-                            <p>Üst üste günlerde aktif kal, bonus puan al</p>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-gamepad"></i>
-                            <h4>Oyun Bağlantısı</h4>
-                            <p>Anketleri tamamla, oyuna geç</p>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-chart-line"></i>
-                            <h4>Liderlik Tablosu</h4>
-                            <p>Skorunu diğerleriyle karşılaştır</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="right-section">
-                <div class="login-section">
-                    <div class="form-header">
-                        <button class="form-tab active" id="tab-login">Giriş Yap</button>
-                        <button class="form-tab" id="tab-register">Kayıt Ol</button>
-                    </div>
-                    <div class="form-container active" id="login-form">
-                        <h3><i class="fas fa-sign-in-alt"></i> Hesap Girişi</h3>
-                        <div class="message" id="login-message"></div>
-                        <div class="input-group">
-                            <label for="login-username"><i class="fas fa-user"></i> Kullanıcı Adı</label>
-                            <input type="text" id="login-username" placeholder="Kullanıcı adınızı girin">
-                        </div>
-                        <div class="input-group">
-                            <label for="login-password"><i class="fas fa-lock"></i> Şifre</label>
-                            <input type="password" id="login-password" placeholder="Şifrenizi girin">
-                        </div>
-                        <button class="btn" id="btn-login"><i class="fas fa-sign-in-alt"></i> Giriş Yap</button>
-                    </div>
-                    <div class="form-container" id="register-form">
-                        <h3><i class="fas fa-user-plus"></i> Yeni Hesap</h3>
-                        <div class="message" id="register-message"></div>
-                        <div class="input-group">
-                            <label for="register-username"><i class="fas fa-user"></i> Kullanıcı Adı</label>
-                            <input type="text" id="register-username" placeholder="En az 3 karakter">
-                        </div>
-                        <div class="input-group">
-                            <label for="register-password"><i class="fas fa-lock"></i> Şifre</label>
-                            <input type="password" id="register-password" placeholder="En az 4 karakter">
-                        </div>
-                        <div class="input-group">
-                            <label for="register-email"><i class="fas fa-envelope"></i> E-posta (opsiyonel)</label>
-                            <input type="email" id="register-email" placeholder="email@example.com">
-                        </div>
-                        <button class="btn btn-success" id="btn-register"><i class="fas fa-user-plus"></i> Kayıt Ol</button>
-                    </div>
-                </div>
-                
-                <div class="stats-section">
-                    <div class="leaderboard-header">
-                        <h3><i class="fas fa-crown"></i> Liderlik Tablosu</h3>
-                        <button class="refresh-btn" id="btn-refresh"><i class="fas fa-sync-alt"></i> Yenile</button>
-                    </div>
-                    <div class="loading" id="loading-leaderboard"><i class="fas fa-spinner fa-spin"></i><p>Yükleniyor...</p></div>
-                    <div class="leaderboard-container" id="leaderboard-container" style="display:none">
-                        <table>
-                            <thead>
-                                <tr><th class="rank">Sıra</th><th>Kullanıcı</th><th>Skor</th><th>Streak</th></tr>
-                            </thead>
-                            <tbody id="leaderboard-body"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+function doGet(e) {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Skorlar");
+    if (!sheet) {
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        error: "Skorlar sayfası bulunamadı"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    const rows = sheet.getDataRange().getValues();
+    const dataRows = rows.length > 1 ? rows.slice(1) : [];
+    
+    dataRows.sort((a, b) => {
+      const scoreA = Number(b[2]) || 0;
+      const scoreB = Number(a[2]) || 0;
+      return scoreA - scoreB;
+    });
+    
+    const params = e?.parameter || {};
+    const limit = parseInt(params.limit) || 10;
+    const page = parseInt(params.page) || 1;
+    
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedRows = dataRows.slice(startIndex, endIndex);
+    
+    function calculateBadge(score) {
+      const numScore = Number(score) || 0;
+      if (numScore >= 1000) return "🏆 ŞAMPİYON";
+      if (numScore >= 500) return "⭐ ALTIN";
+      if (numScore >= 250) return "🥈 GÜMÜŞ";
+      if (numScore >= 100) return "🥉 BRONZ";
+      return "🌱 YENİ";
+    }
+    
+    const leaderboard = paginatedRows.map((row, index) => ({
+      rank: startIndex + index + 1,
+      name: row[1] || "İsimsiz",
+      score: Number(row[2]) || 0,
+      badge: row[3] || calculateBadge(row[2]),
+      streak: Number(row[4]) || 0,
+      lastUpdate: row[5] ? new Date(row[5]).toLocaleDateString('tr-TR') : "Bilinmiyor"
+    }));
+    
+    const scores = dataRows.map(row => Number(row[2]) || 0);
+    const totalScore = scores.reduce((a, b) => a + b, 0);
+    const averageScore = scores.length > 0 ? Math.round(totalScore / scores.length) : 0;
+    
+    const response = {
+      success: true,
+      timestamp: new Date().toISOString(),
+      leaderboard: leaderboard,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(dataRows.length / limit),
+        totalUsers: dataRows.length,
+        hasNext: endIndex < dataRows.length,
+        hasPrev: startIndex > 0
+      },
+      stats: {
+        totalScore: totalScore,
+        averageScore: averageScore,
+        maxScore: Math.max(...scores, 0),
+        minScore: Math.min(...scores, 0)
+      }
+    };
+    
+    return ContentService
+      .createTextOutput(JSON.stringify(response))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: false,
+        error: error.toString(),
+        timestamp: new Date().toISOString()
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
 
-        <!-- KULLANICI PANELİ (Giriş yapınca açılacak) -->
-        <div class="user-dashboard" id="user-dashboard">
-            <!-- ÜST BİLGİ ÇUBUĞU -->
-            <div class="user-header">
-                <div class="user-info">
-                    <div class="avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="user-details">
-                        <h2 id="dashboard-username">Kullanıcı Adı</h2>
-                        <p><i class="fas fa-calendar-day"></i> Hoş geldin! Bugün <span id="today-date"></span></p>
-                    </div>
-                </div>
-                <button class="logout-btn" id="btn-dashboard-logout">
-                    <i class="fas fa-sign-out-alt"></i> Çıkış
-                </button>
-            </div>
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Skorlar");
+    
+    if (!sheet) {
+      const newSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet("Skorlar");
+      newSheet.appendRow(["ID", "İsim", "Skor", "Rozet", "Streak", "Son Güncelleme", "Kayıt Tarihi"]);
+      return doPost(e);
+    }
+    
+    if (!data.name || data.name.trim() === "") {
+      throw new Error("İsim alanı boş olamaz");
+    }
+    
+    const name = data.name.trim();
+    const score = Number(data.score) || 0;
+    const action = data.action || "update";
+    const streak = Number(data.streak) || 0;
+    
+    const rows = sheet.getDataRange().getValues();
+    
+    if (rows.length === 0) {
+      sheet.appendRow(["ID", "İsim", "Skor", "Rozet", "Streak", "Son Güncelleme", "Kayıt Tarihi"]);
+    }
+    
+    let found = false;
+    let rowIndex = -1;
+    let currentScore = 0;
+    let currentStreak = 0;
+    
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][1] === name) {
+        found = true;
+        rowIndex = i;
+        currentScore = Number(rows[i][2]) || 0;
+        currentStreak = Number(rows[i][4]) || 0;
+        break;
+      }
+    }
+    
+    let newScore = score;
+    let newStreak = streak || currentStreak;
+    
+    if (action === "increment") {
+      newScore = currentScore + score;
+    } else if (action === "decrement") {
+      newScore = Math.max(0, currentScore - score);
+    } else if (action === "register") {
+      newScore = 0;
+      newStreak = 0;
+    } else if (action === "updateStreak") {
+      newScore = currentScore;
+      newStreak = streak;
+    }
+    
+    function calculateBadge(score) {
+      const numScore = Number(score) || 0;
+      if (numScore >= 1000) return "🏆 ŞAMPİYON";
+      if (numScore >= 500) return "⭐ ALTIN";
+      if (numScore >= 250) return "🥈 GÜMÜŞ";
+      if (numScore >= 100) return "🥉 BRONZ";
+      return "🌱 YENİ";
+    }
+    
+    const badge = calculateBadge(newScore);
+    const now = new Date();
+    
+    if (found) {
+      sheet.getRange(rowIndex + 1, 3).setValue(newScore);
+      sheet.getRange(rowIndex + 1, 4).setValue(badge);
+      sheet.getRange(rowIndex + 1, 5).setValue(newStreak);
+      sheet.getRange(rowIndex + 1, 6).setValue(now);
+    } else {
+      const userId = Utilities.getUuid().slice(0, 8);
+      sheet.appendRow([userId, name, newScore, badge, newStreak, now, now]);
+    }
+    
+    const response = {
+      success: true,
+      message: "İşlem başarılı",
+      data: {
+        name: name,
+        oldScore: found ? currentScore : 0,
+        newScore: newScore,
+        badge: badge,
+        streak: newStreak,
+        action: action,
+        isNewUser: !found,
+        timestamp: now.toISOString()
+      }
+    };
+    
+    return ContentService
+      .createTextOutput(JSON.stringify(response))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    const errorResponse = {
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    };
+    
+    return ContentService
+      .createTextOutput(JSON.stringify(errorResponse))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
 
-            <!-- ANA İÇERİK -->
-            <div class="dashboard-content">
-                <!-- SOL KOLON: İSTATİSTİKLER -->
-                <div class="stats-column">
-                    <!-- SKOR KARTI -->
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <i class="fas fa-star" style="color:#ffd700;"></i>
-                            <h3>Skorun</h3>
-                        </div>
-                        <div class="stat-value" id="user-total-score">0</div>
-                        <div class="stat-label">Toplam Puan</div>
-                    </div>
-
-                    <!-- STREAK KARTI -->
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <i class="fas fa-fire" style="color:#ff6b35;"></i>
-                            <h3>Streak</h3>
-                        </div>
-                        <div class="stat-value" id="user-streak">0</div>
-                        <div class="stat-label">Üst Üste Gün</div>
-                        <div class="streak-calendar" id="streak-calendar"></div>
-                    </div>
-
-                    <!-- SIRALAMA KARTI -->
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <i class="fas fa-trophy" style="color:#ffb347;"></i>
-                            <h3>Sıralama</h3>
-                        </div>
-                        <div class="stat-value" id="user-rank">-</div>
-                        <div class="stat-label">Genel Sıralamada</div>
-                        <div class="rank-progress">
-                            <div class="progress-bar" id="rank-progress-bar"></div>
-                            <div class="progress-text" id="rank-progress-text"></div>
-                        </div>
-                    </div>
-
-                    <!-- OYUNA GEÇİŞ BUTONU -->
-                    <div class="game-card">
-                        <div class="game-header">
-                            <i class="fas fa-gamepad"></i>
-                            <h3>Oyun Zamanı!</h3>
-                        </div>
-                        <p>Anketleri tamamladıktan sonra oyuna geçebilirsin:</p>
-                        <button class="btn-game" id="btn-go-to-game">
-                            <i class="fas fa-play-circle"></i> OYUNU BAŞLAT
-                        </button>
-                        <p class="game-note"><i class="fas fa-info-circle"></i> Oyunu her gün 1 kez oynayabilirsin</p>
-                    </div>
-                </div>
-
-                <!-- SAĞ KOLON: GÜNLÜK ANKET -->
-                <div class="survey-column">
-                    <div class="survey-card">
-                        <div class="survey-header">
-                            <i class="fas fa-poll-h"></i>
-                            <h3>Günlük Anket</h3>
-                            <div class="survey-status" id="survey-status">
-                                <span class="status-badge active">YENİ</span>
-                            </div>
-                        </div>
-                        
-                        <div class="survey-info">
-                            <p><i class="fas fa-gift"></i> Bu anketi tamamlayarak <strong>50 puan</strong> kazanabilirsin!</p>
-                            <p><i class="fas fa-clock"></i> Süre: 5 dakika</p>
-                            <p><i class="fas fa-check-circle"></i> Durum: <span id="survey-completion">0/5 tamamlandı</span></p>
-                        </div>
-
-                        <!-- ANKET SORULARI -->
-                        <div class="survey-questions" id="survey-questions">
-                            <!-- Sorular JavaScript ile eklenecek -->
-                        </div>
-
-                        <!-- ANKET KONTROLLERİ -->
-                        <div class="survey-controls">
-                            <button class="btn-survey" id="btn-prev-question" disabled>
-                                <i class="fas fa-arrow-left"></i> Önceki
-                            </button>
-                            <div class="question-counter">
-                                Soru <span id="current-question">1</span>/5
-                            </div>
-                            <button class="btn-survey" id="btn-next-question">
-                                Sonraki <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </div>
-
-                        <!-- ANKETİ TAMAMLA BUTONU -->
-                        <div class="survey-submit">
-                            <button class="btn-submit" id="btn-submit-survey" disabled>
-                                <i class="fas fa-paper-plane"></i> Anketi Tamamla ve Puan Al
-                            </button>
-                            <p class="survey-note"><i class="fas fa-lightbulb"></i> Tüm soruları cevapladığında buton aktif olacak</p>
-                        </div>
-
-                        <!-- ANKET SONUÇLARI -->
-                        <div class="survey-results" id="survey-results" style="display:none">
-                            <h4><i class="fas fa-award"></i> Tebrikler!</h4>
-                            <p>Anketi başarıyla tamamladın!</p>
-                            <div class="result-score">
-                                <i class="fas fa-coins"></i>
-                                <span>Kazandığın Puan: <strong id="earned-points">50</strong></span>
-                            </div>
-                            <button class="btn-survey" id="btn-new-survey">
-                                <i class="fas fa-redo"></i> Yarın Yeni Anket Bekle
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- GÜNLÜK GÖREVLER -->
-                    <div class="tasks-card">
-                        <div class="tasks-header">
-                            <i class="fas fa-tasks"></i>
-                            <h3>Günlük Görevler</h3>
-                        </div>
-                        <div class="tasks-list">
-                            <div class="task-item">
-                                <input type="checkbox" id="task-survey" checked disabled>
-                                <label for="task-survey">Günlük anketi tamamla (50p)</label>
-                            </div>
-                            <div class="task-item">
-                                <input type="checkbox" id="task-streak">
-                                <label for="task-streak">7 gün üst üste aktif ol (100p)</label>
-                            </div>
-                            <div class="task-item">
-                                <input type="checkbox" id="task-game">
-                                <label for="task-game">Oyuna katıl (25p)</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <style>
-        /* GENEL STİLLER */
-        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
-        body{background:linear-gradient(135deg,#1a237e 0%,#4a148c 100%);min-height:100vh;color:#333;padding:20px}
-        .container{max-width:1400px;margin:0 auto}
-        
-        /* SAYFA GEÇİŞLERİ */
-        .main-page,.user-dashboard{display:none}
-        .main-page.active,.user-dashboard.active{display:block}
-        
-        /* ANA SAYFA */
-        .main-page{display:grid;grid-template-columns:1fr 1fr;gap:30px}
-        @media(max-width:1200px){.main-page{grid-template-columns:1fr}}
-        @media(max-width:768px){.main-page{padding:10px;gap:20px}}
-        .left-section{background:white;border-radius:20px;padding:40px;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
-        .logo{display:flex;align-items:center;gap:15px;margin-bottom:30px}
-        .logo i{font-size:2.5rem;color:#4a148c}
-        .logo h1{font-size:2rem;color:#1a237e}
-        .about-content h2{color:#1a237e;margin:25px 0 15px;display:flex;align-items:center;gap:10px}
-        .about-content p{line-height:1.8;margin-bottom:15px;color:#444}
-        .features{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin:25px 0}
-        @media(max-width:768px){.features{grid-template-columns:1fr}}
-        .feature-item{background:#f8f9ff;padding:20px;border-radius:12px;border-left:4px solid #4a148c}
-        .feature-item i{color:#4a148c;font-size:1.5rem;margin-bottom:10px}
-        .right-section{display:flex;flex-direction:column;gap:30px}
-        .login-section,.stats-section{background:white;border-radius:20px;padding:40px;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
-        @media(max-width:768px){.login-section,.stats-section{padding:25px}}
-        .form-header{display:flex;gap:10px;margin-bottom:25px}
-        .form-tab{flex:1;padding:15px;background:#f5f5f5;border:none;border-radius:10px;font-weight:600;color:#666;cursor:pointer}
-        .form-tab.active{background:linear-gradient(to right,#4a148c,#7b1fa2);color:white}
-        .form-container{display:none}
-        .form-container.active{display:block}
-        .input-group{margin-bottom:20px}
-        .input-group label{display:block;margin-bottom:8px;color:#555;font-weight:500;display:flex;align-items:center;gap:8px}
-        .input-group input{width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:10px;font-size:1rem}
-        .input-group input:focus{outline:none;border-color:#4a148c}
-        .btn{width:100%;padding:16px;background:linear-gradient(to right,#4a148c,#7b1fa2);color:white;border:none;border-radius:10px;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all 0.3s;margin-top:10px}
-        .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(74,20,140,0.3)}
-        .btn-success{background:linear-gradient(to right,#28a745,#20c997)}
-        .btn-danger{background:linear-gradient(to right,#dc3545,#ff6b6b)}
-        .btn-secondary{background:linear-gradient(to right,#6c757d,#868e96)}
-        .leaderboard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-        .refresh-btn{background:#4a148c;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px}
-        table{width:100%;border-collapse:collapse;margin-top:15px}
-        th{background:#f8f9ff;padding:15px;text-align:left;color:#1a237e;font-weight:600;border-bottom:2px solid #e0e0e0}
-        td{padding:15px;border-bottom:1px solid #eee}
-        tr:hover{background:#f9f9ff}
-        .rank{width:60px;text-align:center;font-weight:bold;color:#4a148c}
-        .loading{text-align:center;padding:40px;color:#666}
-        .loading i{font-size:3rem;color:#4a148c;margin-bottom:20px}
-        .message{padding:15px;border-radius:10px;margin:15px 0;display:none}
-        .message.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb;display:block}
-        .message.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;display:block}
-        .message.info{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb;display:block}
-        
-        /* KULLANICI DASHBOARD */
-        .user-dashboard{background:white;border-radius:20px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
-        .user-header{background:linear-gradient(135deg,#4a148c,#7b1fa2);color:white;padding:25px 40px;display:flex;justify-content:space-between;align-items:center}
-        .user-info{display:flex;align-items:center;gap:20px}
-        .avatar i{font-size:3.5rem}
-        .user-details h2{font-size:1.8rem;margin-bottom:5px}
-        .logout-btn{background:rgba(255,255,255,0.2);color:white;border:2px solid rgba(255,255,255,0.3);padding:12px 25px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:10px;font-weight:600}
-        .logout-btn:hover{background:rgba(255,255,255,0.3)}
-        
-        .dashboard-content{display:grid;grid-template-columns:1fr 1.5fr;gap:30px;padding:40px}
-        @media(max-width:1200px){.dashboard-content{grid-template-columns:1fr}}
-        
-        /* SOL KOLON STİLLERİ */
-        .stats-column{display:flex;flex-direction:column;gap:25px}
-        .stat-card{background:#f8f9ff;padding:25px;border-radius:15px;border-left:5px solid #4a148c}
-        .stat-header{display:flex;align-items:center;gap:15px;margin-bottom:20px}
-        .stat-header i{font-size:2rem}
-        .stat-header h3{color:#1a237e;font-size:1.3rem}
-        .stat-value{font-size:3.5rem;font-weight:bold;color:#4a148c;text-align:center;margin:10px 0}
-        .stat-label{text-align:center;color:#666;font-size:0.95rem}
-        .streak-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:20px}
-        .streak-day{background:#e0e0e0;border-radius:6px;padding:8px;text-align:center;font-size:0.85rem}
-        .streak-day.active{background:#ff6b35;color:white}
-        .rank-progress{margin-top:20px}
-        .progress-bar{height:10px;background:#e0e0e0;border-radius:5px;overflow:hidden}
-        .progress-bar::after{content:'';display:block;height:100%;background:#4a148c;width:0%;transition:width 0.5s}
-        .progress-text{text-align:center;margin-top:5px;color:#666;font-size:0.9rem}
-        
-        .game-card{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:25px;border-radius:15px}
-        .game-header{display:flex;align-items:center;gap:15px;margin-bottom:15px}
-        .game-header i{font-size:2rem}
-        .game-header h3{font-size:1.5rem}
-        .game-card p{margin-bottom:15px;opacity:0.9}
-        .btn-game{width:100%;padding:18px;background:white;color:#4a148c;border:none;border-radius:10px;font-size:1.2rem;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:15px;transition:all 0.3s}
-        .btn-game:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(0,0,0,0.2)}
-        .game-note{font-size:0.85rem;opacity:0.8;margin-top:15px;text-align:center}
-        
-        /* SAĞ KOLON STİLLERİ */
-        .survey-card{background:white;border-radius:15px;padding:30px;box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:25px}
-        .survey-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;border-bottom:2px solid #f0f0f0;padding-bottom:15px}
-        .survey-header i{font-size:2rem;color:#4a148c}
-        .survey-header h3{color:#1a237e;font-size:1.5rem}
-        .status-badge{background:#28a745;color:white;padding:8px 15px;border-radius:20px;font-size:0.9rem;font-weight:600}
-        
-        .survey-info{background:#f8f9ff;padding:20px;border-radius:10px;margin-bottom:25px}
-        .survey-info p{margin-bottom:10px;display:flex;align-items:center;gap:10px}
-        
-        .survey-questions{margin-bottom:25px}
-        .question-item{margin-bottom:20px;padding:20px;background:#f8f9ff;border-radius:10px}
-        .question-text{font-weight:600;margin-bottom:15px;color:#1a237e}
-        .question-options{display:flex;flex-direction:column;gap:12px}
-        .option-label{display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:8px;cursor:pointer;border:2px solid #e0e0e0}
-        .option-label:hover{border-color:#4a148c}
-        .option-label.selected{border-color:#4a148c;background:#f0e6ff}
-        .option-label input{display:none}
-        
-        .survey-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
-        .btn-survey{padding:12px 25px;background:#4a148c;color:white;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px}
-        .btn-survey:disabled{background:#cccccc;cursor:not-allowed}
-        .question-counter{font-weight:600;color:#1a237e;font-size:1.1rem}
-        
-        .survey-submit{text-align:center}
-        .btn-submit{padding:20px;background:linear-gradient(to right,#28a745,#20c997);color:white;border:none;border-radius:10px;font-size:1.2rem;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:15px;width:100%}
-        .btn-submit:disabled{background:#cccccc;cursor:not-allowed}
-        .survey-note{font-size:0.9rem;color:#666;margin-top:10px;text-align:center}
-        
-        .survey-results{background:#d4edda;padding:25px;border-radius:10px;text-align:center}
-        .survey-results h4{color:#155724;margin-bottom:15px}
-        .result-score{background:white;padding:15px;border-radius:8px;margin:20px 0;display:inline-flex;align-items:center;gap:15px}
-        
-        .tasks-card{background:white;border-radius:15px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.1)}
-        .tasks-header{display:flex;align-items:center;gap:15px;margin-bottom:20px}
-        .tasks-header i{font-size:1.8rem;color:#4a148c}
-        .tasks-header h3{color:#1a237e}
-        .tasks-list{display:flex;flex-direction:column;gap:15px}
-        .task-item{display:flex;align-items:center;gap:15px}
-        .task-item input[type="checkbox"]{width:20px;height:20px}
-        .task-item label{flex:1}
-        
-        @media(max-width:768px){
-            .dashboard-content{padding:25px}
-            .survey-controls{flex-direction:column;gap:15px}
-            .user-header{flex-direction:column;gap:20px;text-align:center}
-        }
-    </style>
-
-    <script>
-        // YAPILANDIRMA
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuRkQd2SJiXskC04DJ2IIron5ogdKnCBiMyL2EVrcGOql44oGmMdQFy_FqZVkjCarD/exec';
-        const GAME_URL = 'https://senin-oyun-linkin.com'; // BUNA SONRA OYUN LINKİNİ EKLE
-        
-        // YEREL VERİ DEPOLAMA
-        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-        let usersDatabase = JSON.parse(localStorage.getItem('usersDatabase')) || {
-            // Örnek kullanıcılar (şifreler: 1234)
-            'test': { password: '1234', score: 250, streak: 3, rank: 5 },
-            'ahmet': { password: '1234', score: 500, streak: 7, rank: 2 },
-            'ayse': { password: '1234', score: 350, streak: 5, rank: 4 }
-        };
-        
-        let streakData = JSON.parse(localStorage.getItem('streakData')) || {};
-        let surveyData = JSON.parse(localStorage.getItem('surveyData')) || {};
-        let currentQuestion = 1;
-        let surveyAnswers = {};
-        let dailyQuestions = [];
-        
-        // SAYFA YÜKLENDİĞİNDE
-        document.addEventListener('DOMContentLoaded', function() {
-            initApp();
-            loadLeaderboard();
-            generateDailyQuestions();
-            
-            // Bugünün tarihini göster
-            const today = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('today-date').textContent = today.toLocaleDateString('tr-TR', options);
-        });
-        
-        // UYGULAMAYI BAŞLAT
-        function initApp() {
-            // Ana sayfa event'leri
-            document.getElementById('tab-login').addEventListener('click', () => switchTab('login'));
-            document.getElementById('tab-register').addEventListener('click', () => switchTab('register'));
-            document.getElementById('btn-login').addEventListener('click', loginUser);
-            document.getElementById('btn-register').addEventListener('click', registerUser);
-            document.getElementById('btn-refresh').addEventListener('click', loadLeaderboard);
-            document.getElementById('login-username').addEventListener('keypress', (e) => e.key === 'Enter' && loginUser());
-            document.getElementById('login-password').addEventListener('keypress', (e) => e.key === 'Enter' && loginUser());
-            
-            // Dashboard event'leri
-            document.getElementById('btn-dashboard-logout').addEventListener('click', logoutUser);
-            document.getElementById('btn-go-to-game').addEventListener('click', goToGame);
-            document.getElementById('btn-prev-question').addEventListener('click', prevQuestion);
-            document.getElementById('btn-next-question').addEventListener('click', nextQuestion);
-            document.getElementById('btn-submit-survey').addEventListener('click', submitSurvey);
-            document.getElementById('btn-new-survey').addEventListener('click', loadSurvey);
-            
-            // Kullanıcı durumunu kontrol et
-            if (currentUser) {
-                showDashboard();
-                loadUserData();
-            } else {
-                showMainPage();
-            }
-        }
-        
-        // SAYFA GEÇİŞLERİ
-        function showMainPage() {
-            document.getElementById('main-page').classList.add('active');
-            document.getElementById('user-dashboard').classList.remove('active');
-        }
-        
-        function showDashboard() {
-            document.getElementById('main-page').classList.remove('active');
-            document.getElementById('user-dashboard').classList.add('active');
-            document.getElementById('dashboard-username').textContent = currentUser.name;
-            loadUserData();
-        }
-        
-        // TAB GEÇİŞİ
-        function switchTab(tab) {
-            if (tab === 'login') {
-                document.getElementById('login-form').classList.add('active');
-                document.getElementById('register-form').classList.remove('active');
-                document.getElementById('tab-login').classList.add('active');
-                document.getElementById('tab-register').classList.remove('active');
-            } else {
-                document.getElementById('login-form').classList.remove('active');
-                document.getElementById('register-form').classList.add('active');
-                document.getElementById('tab-login').classList.remove('active');
-                document.getElementById('tab-register').classList.add('active');
-            }
-        }
-        
-        // GİRİŞ YAP
-        function loginUser() {
-            const username = document.getElementById('login-username').value.trim();
-            const password = document.getElementById('login-password').value;
-            
-            if (!username || !password) { 
-                showMessage('login-message', 'Kullanıcı adı ve şifre gerekli', 'error'); 
-                return; 
-            }
-            
-            // Yerel veritabanında kullanıcıyı ara
-            const user = usersDatabase[username];
-            
-            if (user && user.password === password) {
-                // Giriş başarılı
-                currentUser = { 
-                    name: username, 
-                    score: user.score || 0, 
-                    badge: getBadge(user.score || 0), 
-                    streak: user.streak || 0,
-                    rank: user.rank || 0
-                };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // Streak verilerini başlat
-                initializeStreakData(username);
-                
-                showDashboard();
-                showMessage('login-message', 'Giriş başarılı!', 'success');
-            } else {
-                showMessage('login-message', 'Kullanıcı adı veya şifre hatalı', 'error');
-            }
-        }
-        
-        // ROZET HESAPLA
-        function getBadge(score) {
-            if (score >= 1000) return "🏆 ŞAMPİYON";
-            if (score >= 500) return "⭐ ALTIN";
-            if (score >= 250) return "🥈 GÜMÜŞ";
-            if (score >= 100) return "🥉 BRONZ";
-            return "🌱 YENİ";
-        }
-        
-        // KAYIT OL
-        function registerUser() {
-            const username = document.getElementById('register-username').value.trim();
-            const password = document.getElementById('register-password').value;
-            const email = document.getElementById('register-email').value.trim();
-            
-            if (!username || username.length < 3) { 
-                showMessage('register-message', 'Kullanıcı adı en az 3 karakter olmalı', 'error'); 
-                return; 
-            }
-            
-            if (!password || password.length < 4) { 
-                showMessage('register-message', 'Şifre en az 4 karakter olmalı', 'error'); 
-                return; 
-            }
-            
-            // Kullanıcı adı kullanılıyor mu?
-            if (usersDatabase[username]) {
-                showMessage('register-message', 'Bu kullanıcı adı zaten kullanılıyor', 'error');
-                return;
-            }
-            
-            // Yeni kullanıcı oluştur
-            usersDatabase[username] = {
-                password: password,
-                email: email || '',
-                score: 0,
-                streak: 0,
-                rank: 0,
-                createdAt: new Date().toISOString()
-            };
-            
-            // Veritabanını kaydet
-            localStorage.setItem('usersDatabase', JSON.stringify(usersDatabase));
-            
-            // Kullanıcıyı otomatik giriş yap
-            currentUser = { 
-                name: username, 
-                score: 0, 
-                badge: '🌱 YENİ', 
-                streak: 0,
-                rank: 0
-            };
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            
-            // Streak verilerini başlat
-            initializeStreakData(username);
-            
-            // Google Sheets'e kullanıcıyı kaydet (isteğe bağlı)
-            saveUserToGoogleSheets(username, email);
-            
-            showDashboard();
-            showMessage('register-message', 'Kayıt başarılı! Hoş geldiniz!', 'success');
-            loadLeaderboard();
-        }
-        
-        // GOOGLE SHEETS'E KULLANICI KAYDET
-        async function saveUserToGoogleSheets(username, email) {
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        name: username, 
-                        score: 0, 
-                        action: 'register',
-                        email: email
-                    })
-                });
-            } catch (error) {
-                console.log('Google Sheets kaydı başarısız (normal)', error);
-            }
-        }
-        
-        // ÇIKIŞ YAP
-        function logoutUser() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            showMainPage();
-            showMessage('login-message', 'Çıkış yapıldı', 'success');
-        }
-        
-        // KULLANICI VERİLERİNİ YÜKLE
-        function loadUserData() {
-            if (!currentUser) return;
-            
-            // Skor, streak ve sıralamayı güncelle
-            document.getElementById('user-total-score').textContent = currentUser.score;
-            document.getElementById('user-streak').textContent = currentUser.streak;
-            document.getElementById('user-rank').textContent = currentUser.rank > 0 ? `#${currentUser.rank}` : '-';
-            
-            // Streak takvimini güncelle
-            updateStreakCalendar();
-            
-            // Sıralama ilerlemesini güncelle
-            updateRankProgress();
-            
-            // Anket durumunu kontrol et
-            checkDailySurvey();
-            
-            // Liderlik tablosunu yenile
-            loadLeaderboard();
-        }
-        
-        // STREAK VERİLERİNİ BAŞLAT
-        function initializeStreakData(username) {
-            if (!streakData[username]) {
-                streakData[username] = {
-                    currentStreak: 0,
-                    longestStreak: 0,
-                    lastActiveDate: null,
-                    history: {}
-                };
-                localStorage.setItem('streakData', JSON.stringify(streakData));
-            }
-            
-            // Bugünkü streak'i kontrol et
-            checkDailyStreak();
-        }
-        
-        // GÜNLÜK STREAK KONTROLÜ
-        function checkDailyStreak() {
-            if (!currentUser) return;
-            
-            const userStreak = streakData[currentUser.name];
-            if (!userStreak) return;
-            
-            const today = new Date().toDateString();
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toDateString();
-            
-            // Bugün zaten aktif mi?
-            if (userStreak.history[today]) {
-                return;
-            }
-            
-            // Dün aktif miydi?
-            if (userStreak.lastActiveDate === yesterdayStr) {
-                userStreak.currentStreak++;
-            } else if (userStreak.lastActiveDate !== today) {
-                if (userStreak.currentStreak > userStreak.longestStreak) {
-                    userStreak.longestStreak = userStreak.currentStreak;
-                }
-                userStreak.currentStreak = 1; // Bugün ilk gün
-            }
-            
-            // Güncelle
-            userStreak.lastActiveDate = today;
-            userStreak.history[today] = true;
-            
-            localStorage.setItem('streakData', JSON.stringify(streakData));
-            
-            // Kullanıcı streak'ini güncelle
-            currentUser.streak = userStreak.currentStreak;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            
-            // Veritabanını güncelle
-            if (usersDatabase[currentUser.name]) {
-                usersDatabase[currentUser.name].streak = currentUser.streak;
-                localStorage.setItem('usersDatabase', JSON.stringify(usersDatabase));
-            }
-            
-            // API'ye streak güncellemesi gönder
-            updateStreakOnServer();
-        }
-        
-        // STREAK'İ SERVER'A KAYDET
-        async function updateStreakOnServer() {
-            if (!currentUser) return;
-            
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: currentUser.name,
-                        streak: currentUser.streak,
-                        action: 'updateStreak'
-                    })
-                });
-            } catch (error) {
-                console.error('Streak güncellenirken hata:', error);
-            }
-        }
-        
-        // STREAK TAKVİMİNİ GÜNCELLE
-        function updateStreakCalendar() {
-            if (!currentUser) return;
-            
-            const calendar = document.getElementById('streak-calendar');
-            calendar.innerHTML = '';
-            
-            const days = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
-            const today = new Date();
-            const userStreak = streakData[currentUser.name] || { history: {} };
-            
-            // Son 7 günü göster
-            for (let i = 6; i >= 0; i--) {
-                const day = new Date();
-                day.setDate(today.getDate() - i);
-                const dayStr = day.toDateString();
-                const dayOfWeek = days[day.getDay() === 0 ? 6 : day.getDay() - 1];
-                
-                const dayElement = document.createElement('div');
-                dayElement.className = 'streak-day';
-                dayElement.textContent = dayOfWeek;
-                
-                // Bugünü işaretle
-                if (i === 0) {
-                    dayElement.style.border = '2px solid #ff6b35';
-                }
-                
-                // Aktif günleri işaretle
-                if (userStreak.history[dayStr]) {
-                    dayElement.classList.add('active');
-                }
-                
-                calendar.appendChild(dayElement);
-            }
-        }
-        
-        // SIRALAMA İLERLEMESİNİ GÜNCELLE
-        function updateRankProgress() {
-            const progressBar = document.getElementById('rank-progress-bar');
-            const progressText = document.getElementById('rank-progress-text');
-            
-            if (currentUser.rank <= 0) {
-                progressBar.style.width = '0%';
-                progressText.textContent = 'Sıralamaya henüz girmedin';
-                return;
-            }
-            
-            // İlk 10'a girmişse %100 göster
-            if (currentUser.rank <= 10) {
-                progressBar.style.width = '100%';
-                progressText.textContent = `İlk 10'da! #${currentUser.rank}`;
-            } else {
-                // İlerlemeyi göster (örnek: 50. sırada ise %50)
-                const progress = Math.max(0, Math.min(100, (100 - currentUser.rank) / 2));
-                progressBar.style.width = progress + '%';
-                progressText.textContent = `#${currentUser.rank}. sıradasın`;
-            }
-        }
-        
-        // GÜNLÜK ANKET SORULARINI OLUŞTUR
-        function generateDailyQuestions() {
-            dailyQuestions = [
-                {
-                    id: 1,
-                    question: "Günlük kaç saat uyku uyursun?",
-                    options: ["4-6 saat", "6-8 saat", "8-10 saat", "10+ saat"]
-                },
-                {
-                    id: 2,
-                    question: "En sevdiğin içecek hangisi?",
-                    options: ["Kahve", "Çay", "Su", "Meyve Suyu"]
-                },
-                {
-                    id: 3,
-                    question: "Hangi tür oyunları tercih edersin?",
-                    options: ["Strateji", "Aksiyon", "Spor", "Bulmaca"]
-                },
-                {
-                    id: 4,
-                    question: "Günün en verimli saatleri?",
-                    options: ["Sabah", "Öğlen", "Akşam", "Gece"]
-                },
-                {
-                    id: 5,
-                    question: "Hobilerinden biri nedir?",
-                    options: ["Kitap okumak", "Spor yapmak", "Müzik dinlemek", "Film izlemek"]
-                }
-            ];
-        }
-        
-        // GÜNLÜK ANKET KONTROLÜ
-        function checkDailySurvey() {
-            if (!currentUser) return;
-            
-            const today = new Date().toDateString();
-            const userSurveyData = surveyData[currentUser.name] || {};
-            
-            // Bugün anket yapılmış mı?
-            if (userSurveyData.lastSurveyDate === today) {
-                // Anket yapılmış, sonuçları göster
-                showSurveyResults(userSurveyData.lastSurveyScore || 50);
-            } else {
-                // Yeni anket yükle
-                loadSurvey();
-            }
-        }
-        
-        // ANKETİ YÜKLE
-        function loadSurvey() {
-            currentQuestion = 1;
-            surveyAnswers = {};
-            
-            // Anket sonuçlarını gizle
-            document.getElementById('survey-results').style.display = 'none';
-            document.getElementById('survey-questions').style.display = 'block';
-            document.getElementById('survey-submit').style.display = 'block';
-            
-            // İlk soruyu göster
-            showQuestion(currentQuestion);
-            
-            // Durum güncelle
-            document.getElementById('survey-completion').textContent = '0/5 tamamlandı';
-            document.getElementById('survey-status').innerHTML = '<span class="status-badge active">DEVAM EDİYOR</span>';
-            
-            // Submit butonunu devre dışı bırak
-            document.getElementById('btn-submit-survey').disabled = true;
-        }
-        
-        // SORUYU GÖSTER
-        function showQuestion(questionNumber) {
-            const question = dailyQuestions[questionNumber - 1];
-            const questionsContainer = document.getElementById('survey-questions');
-            
-            questionsContainer.innerHTML = `
-                <div class="question-item">
-                    <div class="question-text">${question.question}</div>
-                    <div class="question-options">
-                        ${question.options.map((option, index) => `
-                            <label class="option-label ${surveyAnswers[question.id] === index ? 'selected' : ''}">
-                                <input type="radio" name="question-${question.id}" value="${index}" 
-                                    ${surveyAnswers[question.id] === index ? 'checked' : ''}
-                                    onchange="selectAnswer(${question.id}, ${index})">
-                                ${option}
-                            </label>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            
-            // Soru sayacını güncelle
-            document.getElementById('current-question').textContent = questionNumber;
-            
-            // Navigasyon butonlarını güncelle
-            document.getElementById('btn-prev-question').disabled = questionNumber === 1;
-            document.getElementById('btn-next-question').disabled = questionNumber === 5;
-            
-            // Tüm sorular cevaplanmış mı kontrol et
-            checkSurveyCompletion();
-        }
-        
-        // CEVAP SEÇ
-        function selectAnswer(questionId, optionIndex) {
-            surveyAnswers[questionId] = optionIndex;
-            
-            // Seçili seçeneği vurgula
-            document.querySelectorAll('.option-label').forEach(label => {
-                label.classList.remove('selected');
-            });
-            event.target.closest('.option-label').classList.add('selected');
-            
-            // Tamamlama durumunu kontrol et
-            checkSurveyCompletion();
-        }
-        
-        // ANKET TAMAMLAMA KONTROLÜ
-        function checkSurveyCompletion() {
-            const answeredCount = Object.keys(surveyAnswers).length;
-            const totalQuestions = dailyQuestions.length;
-            
-            document.getElementById('survey-completion').textContent = `${answeredCount}/${totalQuestions} tamamlandı`;
-            
-            // Tüm sorular cevaplanmışsa submit butonunu aktif et
-            document.getElementById('btn-submit-survey').disabled = answeredCount !== totalQuestions;
-        }
-        
-        // ÖNCEKİ SORU
-        function prevQuestion() {
-            if (currentQuestion > 1) {
-                currentQuestion--;
-                showQuestion(currentQuestion);
-            }
-        }
-        
-        // SONRAKİ SORU
-        function nextQuestion() {
-            if (currentQuestion < 5) {
-                currentQuestion++;
-                showQuestion(currentQuestion);
-            }
-        }
-        
-        // ANKETİ TAMAMLA
-        async function submitSurvey() {
-            if (!currentUser) return;
-            
-            // Anket puanını hesapla (her soru 10 puan)
-            const surveyScore = 50; // 5 soru * 10 puan
-            
-            // Skoru güncelle
-            currentUser.score += surveyScore;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            
-            // Veritabanını güncelle
-            if (usersDatabase[currentUser.name]) {
-                usersDatabase[currentUser.name].score = currentUser.score;
-                localStorage.setItem('usersDatabase', JSON.stringify(usersDatabase));
-            }
-            
-            // Anket verilerini kaydet
-            const today = new Date().toDateString();
-            surveyData[currentUser.name] = {
-                lastSurveyDate: today,
-                lastSurveyScore: surveyScore,
-                totalSurveys: (surveyData[currentUser.name]?.totalSurveys || 0) + 1
-            };
-            localStorage.setItem('surveyData', JSON.stringify(surveyData));
-            
-            // Streak'i güncelle
-            checkDailyStreak();
-            
-            // Skoru server'a gönder
-            await updateScoreOnServer(surveyScore);
-            
-            // Sonuçları göster
-            showSurveyResults(surveyScore);
-        }
-        
-        // ANKET SONUÇLARINI GÖSTER
-        function showSurveyResults(score) {
-            // Soruları gizle
-            document.getElementById('survey-questions').style.display = 'none';
-            document.getElementById('survey-submit').style.display = 'none';
-            
-            // Sonuçları göster
-            const resultsContainer = document.getElementById('survey-results');
-            resultsContainer.style.display = 'block';
-            
-            document.getElementById('earned-points').textContent = score;
-            
-            // Durum güncelle
-            document.getElementById('survey-status').innerHTML = '<span class="status-badge" style="background:#28a745">TAMAMLANDI</span>';
-            document.getElementById('survey-completion').textContent = '5/5 tamamlandı';
-            
-            // Kullanıcı verilerini yenile
-            loadUserData();
-        }
-        
-        // SKORU SERVER'A GÖNDER
-        async function updateScoreOnServer(points) {
-            if (!currentUser) return;
-            
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: currentUser.name,
-                        score: points,
-                        action: 'increment'
-                    })
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    console.log('Skor güncellendi:', result.data);
-                }
-            } catch (error) {
-                console.error('Skor güncellenirken hata:', error);
-            }
-        }
-        
-        // OYUNA GEÇ
-        function goToGame() {
-            if (!confirm('Oyuna yönlendirileceksin. Emin misin?')) {
-                return;
-            }
-            
-            // Oyun linkini yeni sekmede aç
-            window.open(GAME_URL, '_blank');
-            
-            // Oyun görevini işaretle
-            document.getElementById('task-game').checked = true;
-            
-            // Bonus puan ekle (25 puan)
-            currentUser.score += 25;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            
-            // Veritabanını güncelle
-            if (usersDatabase[currentUser.name]) {
-                usersDatabase[currentUser.name].score = currentUser.score;
-                localStorage.setItem('usersDatabase', JSON.stringify(usersDatabase));
-            }
-            
-            updateScoreOnServer(25);
-            loadUserData();
-            
-            showMessage('login-message', 'Oyun görevi tamamlandı! +25 puan', 'success');
-        }
-        
-        // LİDERLİK TABLOSUNU YÜKLE
-        function loadLeaderboard() {
-            try {
-                document.getElementById('loading-leaderboard').style.display = 'block';
-                document.getElementById('leaderboard-container').style.display = 'none';
-                
-                const data = getLeaderboardData();
-                renderLeaderboard(data);
-                
-                document.getElementById('loading-leaderboard').style.display = 'none';
-                document.getElementById('leaderboard-container').style.display = 'block';
-            } catch (error) {
-                document.getElementById('loading-leaderboard').style.display = 'none';
-                console.error('Liderlik tablosu yüklenirken hata:', error);
-            }
-        }
-        
-        // LİDERLİK VERİLERİNİ AL
-        function getLeaderboardData() {
-            // Yerel veritabanındaki kullanıcıları al
-            const allUsers = Object.keys(usersDatabase).map(username => {
-                const user = usersDatabase[username];
-                return {
-                    name: username,
-                    score: user.score || 0,
-                    streak: user.streak || 0,
-                    rank: 0
-                };
-            });
-            
-            // Skora göre sırala
-            allUsers.sort((a, b) => b.score - a.score);
-            
-            // Sıralamayı ekle
-            allUsers.forEach((user, index) => {
-                user.rank = index + 1;
-                // Mevcut kullanıcının sıralamasını güncelle
-                if (currentUser && user.name === currentUser.name) {
-                    currentUser.rank = user.rank;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    // Veritabanını güncelle
-                    if (usersDatabase[currentUser.name]) {
-                        usersDatabase[currentUser.name].rank = user.rank;
-                        localStorage.setItem('usersDatabase', JSON.stringify(usersDatabase));
-                    }
-                }
-            });
-            
-            return allUsers.slice(0, 10); // İlk 10'u döndür
-        }
-        
-        // LİDERLİK TABLOSUNU RENDER ET
-        function renderLeaderboard(data) {
-            const tbody = document.getElementById('leaderboard-body');
-            tbody.innerHTML = '';
-            
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;color:#666">Henüz veri yok</td></tr>';
-                return;
-            }
-            
-            data.forEach((user, index) => {
-                const row = document.createElement('tr');
-                
-                // Mevcut kullanıcıyı vurgula
-                if (currentUser && user.name === currentUser.name) {
-                    row.style.background = 'rgba(74, 20, 140, 0.1)';
-                }
-                
-                row.innerHTML = `
-                    <td class="rank">${index + 1} ${index < 3 ? ['🥇','🥈','🥉'][index] : ''}</td>
-                    <td><strong>${user.name}</strong>${currentUser && user.name === currentUser.name ? ' (Siz)' : ''}</td>
-                    <td><strong>${user.score || 0}</strong></td>
-                    <td><i class="fas fa-fire" style="color:#ff6b35"></i> ${user.streak || 0}</td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-            
-            // Sıralama ilerlemesini güncelle
-            updateRankProgress();
-        }
-        
-        // MESAJ GÖSTER
-        function showMessage(elementId, message, type = 'info') {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-            
-            element.textContent = message;
-            element.className = 'message ' + type;
-            
-            if (type !== 'info') {
-                setTimeout(() => { 
-                    element.className = 'message'; 
-                    element.textContent = ''; 
-                }, 5000);
-            }
-        }
-    </script>
-</body>
-</html>
+function doOptions() {
+  return ContentService
+    .createTextOutput()
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeader('Access-Control-Allow-Origin', '*')
+    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
