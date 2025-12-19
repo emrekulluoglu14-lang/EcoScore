@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skor Takip Sistemi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://script.google.com/macros/s/AKfycbxuRkQd2SJiXskC04DJ2IIron5ogdKnCBiMyL2EVrcGOql44oGmMdQFy_FqZVkjCarD/exec">
+</head>
+<body>
+    <div class="container">
+        <!-- Sol Bölüm: Biz Kimiz -->
+        <div class="left-section">
+            <div class="overlay"></div>
+            <div class="content">
+                <h1><i class="fas fa-users"></i> Biz Kimiz?</h1>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <i class="fas fa-trophy"></i>
+                        <h3>Toplam Skor</h3>
+                        <p id="total-score">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-user-friends"></i>
+                        <h3>Kayıtlı Üye</h3>
+                        <p id="total-users">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Bölüm: Giriş/Kayıt -->
+        <div class="right-section">
+            <div class="form-container">
+                <!-- Form Seçenekleri -->
+                <div class="form-header">
+                    <button class="form-toggle active" id="login-toggle">Giriş Yap</button>
+                    <button class="form-toggle" id="register-toggle">Kayıt Ol</button>
+                </div>
+
+                <!-- Giriş Formu -->
+                <form id="login-form" class="form active">
+                    <h2><i class="fas fa-sign-in-alt"></i> Hesap Girişi</h2>
+                    
+                    <div class="input-group">
+                        <label for="login-username"><i class="fas fa-user"></i> Hesap Adı</label>
+                        <input type="text" id="login-username" placeholder="Kullanıcı adınızı girin" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="login-password"><i class="fas fa-lock"></i> Şifre</label>
+                        <input type="password" id="login-password" placeholder="Şifrenizi girin" required>
+                    </div>
+                    
+                    <button type="submit" class="btn">Giriş Yap</button>
+                    
+                    <div class="form-footer">
+                        <p>Hesabınız yok mu? <a href="#" id="go-register">Kayıt olun</a></p>
+                    </div>
+                </form>
+
+                <!-- Kayıt Formu -->
+                <form id="register-form" class="form">
+                    <h2><i class="fas fa-user-plus"></i> Yeni Hesap Oluştur</h2>
+                    
+                    <div class="input-group">
+                        <label for="register-username"><i class="fas fa-user"></i> Hesap Adı</label>
+                        <input type="text" id="register-username" placeholder="Yeni kullanıcı adı" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="register-password"><i class="fas fa-lock"></i> Şifre</label>
+                        <input type="password" id="register-password" placeholder="Yeni şifre" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="confirm-password"><i class="fas fa-lock"></i> Şifre Tekrar</label>
+                        <input type="password" id="confirm-password" placeholder="Şifreyi tekrar girin" required>
+                    </div>
+                    
+                    <button type="submit" class="btn">Kayıt Ol</button>
+                    
+                    <div class="form-footer">
+                        <p>Zaten hesabınız var mı? <a href="#" id="go-login">Giriş yapın</a></p>
+                    </div>
+                </form>
+
+                <!-- Kullanıcı Paneli (Giriş yapınca görünecek) -->
+                <div id="user-panel" class="user-panel hidden">
+                    <h2><i class="fas fa-user-circle"></i> Hoş Geldiniz, <span id="welcome-username"></span></h2>
+                    
+                    <div class="user-info">
+                        <div class="info-item">
+                            <i class="fas fa-star"></i>
+                            <span>Mevcut Skorunuz:</span>
+                            <strong id="user-score">0</strong>
+                        </div>
+                        
+                        <div class="actions">
+                            <button class="action-btn" id="add-score">
+                                <i class="fas fa-plus"></i> Skor Ekle (+10)
+                            </button>
+                            <button class="action-btn" id="subtract-score">
+                                <i class="fas fa-minus"></i> Skor Düşür (-5)
+                            </button>
+                            <button class="action-btn logout" id="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Google Sheets Bağlantı Bilgisi -->
+                <div class="sheets-info">
+                    <p><i class="fas fa-table"></i> Skorlarınız Google Sheets üzerinde kaydedilmektedir.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
