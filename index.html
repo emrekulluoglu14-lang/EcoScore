@@ -4,123 +4,393 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skor Takip Sistemi</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://script.google.com/macros/s/AKfycbxuRkQd2SJiXskC04DJ2IIron5ogdKnCBiMyL2EVrcGOql44oGmMdQFy_FqZVkjCarD/exec">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <!-- Sol Bölüm: Biz Kimiz -->
         <div class="left-section">
-            <div class="overlay"></div>
-            <div class="content">
-                <h1><i class="fas fa-users"></i> Biz Kimiz?</h1>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                
-                <div class="stats">
-                    <div class="stat-item">
-                        <i class="fas fa-trophy"></i>
-                        <h3>Toplam Skor</h3>
-                        <p id="total-score">0</p>
+            <div class="logo">
+                <i class="fas fa-trophy"></i>
+                <h1>SkorTakip Pro</h1>
+            </div>
+            <div class="about-content">
+                <h2><i class="fas fa-users"></i> Biz Kimiz?</h2>
+                <p>SkorTakip Pro, oyun skorlarınızı Google Sheets üzerinde takip eden profesyonel bir sistemdir.</p>
+                <div class="features">
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <h4>Google Sheets</h4>
+                        <p>Verileriniz Google Sheets'te güvenle saklanır.</p>
                     </div>
-                    <div class="stat-item">
-                        <i class="fas fa-user-friends"></i>
-                        <h3>Kayıtlı Üye</h3>
-                        <p id="total-users">0</p>
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>Gerçek Zamanlı</h4>
+                        <p>Skor değişiklikleri anında güncellenir.</p>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Sağ Bölüm: Giriş/Kayıt -->
         <div class="right-section">
-            <div class="form-container">
-                <!-- Form Seçenekleri -->
+            <div class="login-section">
                 <div class="form-header">
-                    <button class="form-toggle active" id="login-toggle">Giriş Yap</button>
-                    <button class="form-toggle" id="register-toggle">Kayıt Ol</button>
+                    <button class="form-tab active" id="tab-login">Giriş Yap</button>
+                    <button class="form-tab" id="tab-register">Kayıt Ol</button>
                 </div>
-
-                <!-- Giriş Formu -->
-                <form id="login-form" class="form active">
-                    <h2><i class="fas fa-sign-in-alt"></i> Hesap Girişi</h2>
-                    
+                <div class="form-container active" id="login-form">
+                    <h3><i class="fas fa-sign-in-alt"></i> Hesap Girişi</h3>
+                    <div class="message" id="login-message"></div>
                     <div class="input-group">
-                        <label for="login-username"><i class="fas fa-user"></i> Hesap Adı</label>
-                        <input type="text" id="login-username" placeholder="Kullanıcı adınızı girin" required>
+                        <label for="login-username"><i class="fas fa-user"></i> Kullanıcı Adı</label>
+                        <input type="text" id="login-username" placeholder="demo / demo123">
                     </div>
-                    
-                    <div class="input-group">
-                        <label for="login-password"><i class="fas fa-lock"></i> Şifre</label>
-                        <input type="password" id="login-password" placeholder="Şifrenizi girin" required>
-                    </div>
-                    
-                    <button type="submit" class="btn">Giriş Yap</button>
-                    
-                    <div class="form-footer">
-                        <p>Hesabınız yok mu? <a href="#" id="go-register">Kayıt olun</a></p>
-                    </div>
-                </form>
-
-                <!-- Kayıt Formu -->
-                <form id="register-form" class="form">
-                    <h2><i class="fas fa-user-plus"></i> Yeni Hesap Oluştur</h2>
-                    
-                    <div class="input-group">
-                        <label for="register-username"><i class="fas fa-user"></i> Hesap Adı</label>
-                        <input type="text" id="register-username" placeholder="Yeni kullanıcı adı" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="register-password"><i class="fas fa-lock"></i> Şifre</label>
-                        <input type="password" id="register-password" placeholder="Yeni şifre" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="confirm-password"><i class="fas fa-lock"></i> Şifre Tekrar</label>
-                        <input type="password" id="confirm-password" placeholder="Şifreyi tekrar girin" required>
-                    </div>
-                    
-                    <button type="submit" class="btn">Kayıt Ol</button>
-                    
-                    <div class="form-footer">
-                        <p>Zaten hesabınız var mı? <a href="#" id="go-login">Giriş yapın</a></p>
-                    </div>
-                </form>
-
-                <!-- Kullanıcı Paneli (Giriş yapınca görünecek) -->
-                <div id="user-panel" class="user-panel hidden">
-                    <h2><i class="fas fa-user-circle"></i> Hoş Geldiniz, <span id="welcome-username"></span></h2>
-                    
-                    <div class="user-info">
-                        <div class="info-item">
-                            <i class="fas fa-star"></i>
-                            <span>Mevcut Skorunuz:</span>
-                            <strong id="user-score">0</strong>
-                        </div>
-                        
-                        <div class="actions">
-                            <button class="action-btn" id="add-score">
-                                <i class="fas fa-plus"></i> Skor Ekle (+10)
-                            </button>
-                            <button class="action-btn" id="subtract-score">
-                                <i class="fas fa-minus"></i> Skor Düşür (-5)
-                            </button>
-                            <button class="action-btn logout" id="logout-btn">
-                                <i class="fas fa-sign-out-alt"></i> Çıkış Yap
-                            </button>
-                        </div>
-                    </div>
+                    <button class="btn" id="btn-login"><i class="fas fa-sign-in-alt"></i> Giriş Yap</button>
+                    <p style="text-align:center;margin-top:20px;color:#666;">Demo: <strong>demo</strong> / <strong>demo123</strong></p>
                 </div>
-
-                <!-- Google Sheets Bağlantı Bilgisi -->
-                <div class="sheets-info">
-                    <p><i class="fas fa-table"></i> Skorlarınız Google Sheets üzerinde kaydedilmektedir.</p>
+                <div class="form-container" id="register-form">
+                    <h3><i class="fas fa-user-plus"></i> Yeni Hesap</h3>
+                    <div class="message" id="register-message"></div>
+                    <div class="input-group">
+                        <label for="register-username"><i class="fas fa-user"></i> Kullanıcı Adı</label>
+                        <input type="text" id="register-username" placeholder="En az 3 karakter">
+                    </div>
+                    <button class="btn btn-success" id="btn-register"><i class="fas fa-user-plus"></i> Kayıt Ol</button>
+                </div>
+                <div class="user-panel" id="user-panel">
+                    <div class="user-header">
+                        <i class="fas fa-user-circle"></i>
+                        <h3>Hoş Geldiniz, <span id="welcome-user">Kullanıcı</span></h3>
+                    </div>
+                    <div class="score-display">
+                        <div>MEVCUT SKORUNUZ</div>
+                        <div class="value" id="current-score">0</div>
+                        <div class="badge" id="user-badge">🌱 YENİ</div>
+                    </div>
+                    <div class="score-actions">
+                        <button class="action-btn btn-success" id="btn-add-score"><i class="fas fa-plus"></i> +10</button>
+                        <button class="action-btn btn-danger" id="btn-subtract-score"><i class="fas fa-minus"></i> -5</button>
+                        <button class="action-btn" id="btn-reset-score"><i class="fas fa-redo"></i> Sıfırla</button>
+                    </div>
+                    <button class="btn" id="btn-logout"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</button>
+                </div>
+            </div>
+            <div class="stats-section">
+                <div class="leaderboard-header">
+                    <h3><i class="fas fa-crown"></i> Liderlik Tablosu</h3>
+                    <button class="refresh-btn" id="btn-refresh"><i class="fas fa-sync-alt"></i> Yenile</button>
+                </div>
+                <div class="message" id="leaderboard-message"></div>
+                <div class="loading" id="loading-leaderboard"><i class="fas fa-spinner fa-spin"></i><p>Yükleniyor...</p></div>
+                <div class="leaderboard-container" id="leaderboard-container" style="display:none">
+                    <table>
+                        <thead>
+                            <tr><th class="rank">Sıra</th><th>Kullanıcı</th><th>Skor</th><th>Rozet</th></tr>
+                        </thead>
+                        <tbody id="leaderboard-body"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <style>
+        /* CSS KODU BURADA */
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        body{background:linear-gradient(135deg,#1a237e 0%,#4a148c 100%);min-height:100vh;color:#333;padding:20px}
+        .container{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:30px}
+        @media(max-width:1200px){.container{grid-template-columns:1fr}}
+        @media(max-width:768px){.container{padding:10px;gap:20px}}
+        .left-section{background:white;border-radius:20px;padding:40px;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
+        .logo{display:flex;align-items:center;gap:15px;margin-bottom:30px}
+        .logo i{font-size:2.5rem;color:#4a148c}
+        .logo h1{font-size:2rem;color:#1a237e}
+        .about-content h2{color:#1a237e;margin:25px 0 15px;display:flex;align-items:center;gap:10px}
+        .about-content p{line-height:1.8;margin-bottom:15px;color:#444}
+        .features{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin:25px 0}
+        @media(max-width:768px){.features{grid-template-columns:1fr}}
+        .feature-item{background:#f8f9ff;padding:20px;border-radius:12px;border-left:4px solid #4a148c}
+        .feature-item i{color:#4a148c;font-size:1.5rem;margin-bottom:10px}
+        .right-section{display:flex;flex-direction:column;gap:30px}
+        .login-section,.stats-section{background:white;border-radius:20px;padding:40px;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
+        @media(max-width:768px){.login-section,.stats-section{padding:25px}}
+        .form-header{display:flex;gap:10px;margin-bottom:25px}
+        .form-tab{flex:1;padding:15px;background:#f5f5f5;border:none;border-radius:10px;font-weight:600;color:#666;cursor:pointer}
+        .form-tab.active{background:linear-gradient(to right,#4a148c,#7b1fa2);color:white}
+        .form-container{display:none}
+        .form-container.active{display:block}
+        .input-group{margin-bottom:20px}
+        .input-group label{display:block;margin-bottom:8px;color:#555;font-weight:500;display:flex;align-items:center;gap:8px}
+        .input-group input{width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:10px;font-size:1rem}
+        .input-group input:focus{outline:none;border-color:#4a148c}
+        .btn{width:100%;padding:16px;background:linear-gradient(to right,#4a148c,#7b1fa2);color:white;border:none;border-radius:10px;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all 0.3s;margin-top:10px}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(74,20,140,0.3)}
+        .btn-secondary{background:linear-gradient(to right,#6c757d,#868e96)}
+        .btn-success{background:linear-gradient(to right,#28a745,#20c997)}
+        .btn-danger{background:linear-gradient(to right,#dc3545,#ff6b6b)}
+        .user-panel{display:none}
+        .user-panel.active{display:block}
+        .user-header{text-align:center;margin-bottom:25px}
+        .user-header i{font-size:4rem;color:#4a148c;margin-bottom:15px}
+        .score-display{text-align:center;background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:25px;border-radius:15px;margin-bottom:25px}
+        .score-display .value{font-size:3.5rem;font-weight:bold;margin:10px 0}
+        .score-display .badge{display:inline-block;background:rgba(255,255,255,0.2);padding:8px 20px;border-radius:20px}
+        .score-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:25px}
+        @media(max-width:768px){.score-actions{grid-template-columns:1fr}}
+        .action-btn{padding:18px;border:none;border-radius:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+        .leaderboard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+        .refresh-btn{background:#4a148c;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px}
+        table{width:100%;border-collapse:collapse;margin-top:15px}
+        th{background:#f8f9ff;padding:15px;text-align:left;color:#1a237e;font-weight:600;border-bottom:2px solid #e0e0e0}
+        td{padding:15px;border-bottom:1px solid #eee}
+        tr:hover{background:#f9f9ff}
+        .rank{width:60px;text-align:center;font-weight:bold;color:#4a148c}
+        .message{padding:15px;border-radius:10px;margin:15px 0;display:none}
+        .message.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb;display:block}
+        .message.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;display:block}
+        .message.info{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb;display:block}
+        .loading{text-align:center;padding:40px;color:#666}
+        .loading i{font-size:3rem;color:#4a148c;margin-bottom:20px}
+    </style>
+
+    <script>
+        // JAVASCRIPT KODU BURADA
+        const  = 'https://script.google.com/macros/s/AKfycbxuRkQd2SJiXskC04DJ2IIron5ogdKnCBiMyL2EVrcGOql44oGmMdQFy_FqZVkjCarD/exec';
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let leaderboardData = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+            loadLeaderboard();
+        });
+        
+        function initApp() {
+            document.getElementById('tab-login').addEventListener('click', () => switchTab('login'));
+            document.getElementById('tab-register').addEventListener('click', () => switchTab('register'));
+            document.getElementById('btn-login').addEventListener('click', loginUser);
+            document.getElementById('btn-register').addEventListener('click', registerUser);
+            document.getElementById('btn-logout').addEventListener('click', logoutUser);
+            document.getElementById('btn-refresh').addEventListener('click', loadLeaderboard);
+            document.getElementById('btn-add-score').addEventListener('click', () => updateScore(10));
+            document.getElementById('btn-subtract-score').addEventListener('click', () => updateScore(-5));
+            document.getElementById('btn-reset-score').addEventListener('click', resetUserScore);
+            document.getElementById('login-username').addEventListener('keypress', (e) => e.key === 'Enter' && loginUser());
+            
+            if (currentUser) {
+                showUserPanel();
+            } else {
+                showLoginForm();
+            }
+            
+            if (.includes('https://script.google.com/macros/s/AKfycbxuRkQd2SJiXskC04DJ2IIron5ogdKnCBiMyL2EVrcGOql44oGmMdQFy_FqZVkjCarD/exec')) {
+                showMessage('leaderboard-message', 'https://script.google.com/macros/s/AKfycbxuRkQd2SJiXskC04DJ2IIron5ogdKnCBiMyL2EVrcGOql44oGmMdQFy_FqZVkjCarD/exec', 'info');
+            }
+        }
+        
+        function switchTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('login-form').classList.add('active');
+                document.getElementById('register-form').classList.remove('active');
+                document.getElementById('tab-login').classList.add('active');
+                document.getElementById('tab-register').classList.remove('active');
+            } else {
+                document.getElementById('login-form').classList.remove('active');
+                document.getElementById('register-form').classList.add('active');
+                document.getElementById('tab-login').classList.remove('active');
+                document.getElementById('tab-register').classList.add('active');
+            }
+        }
+        
+        async function loginUser() {
+            const username = document.getElementById('login-username').value.trim();
+            if (!username) { showMessage('login-message', 'Kullanıcı adı gerekli', 'error'); return; }
+            if (username === 'demo') {
+                currentUser = { name: 'demo', score: 100, badge: '⭐ ALTIN' };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showUserPanel();
+                showMessage('login-message', 'Demo hesabına giriş yapıldı', 'success');
+                return;
+            }
+            showMessage('login-message', 'Giriş yapılıyor...', 'info');
+            try {
+                const leaderboard = await fetchLeaderboard();
+                const user = leaderboard.find(u => u.name === username);
+                if (user) {
+                    currentUser = { name: user.name, score: user.score, badge: user.badge };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showUserPanel();
+                    showMessage('login-message', 'Giriş başarılı!', 'success');
+                } else {
+                    showMessage('login-message', 'Kullanıcı bulunamadı', 'error');
+                }
+            } catch (error) {
+                showMessage('login-message', 'Hata: ' + error.message, 'error');
+            }
+        }
+        
+        async function registerUser() {
+            const username = document.getElementById('register-username').value.trim();
+            if (!username || username.length < 3) { showMessage('register-message', 'En az 3 karakter', 'error'); return; }
+            showMessage('register-message', 'Kayıt yapılıyor...', 'info');
+            try {
+                const response = await fetch(, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: username, score: 0, action: 'update' })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    currentUser = { name: username, score: 0, badge: '🌱 Filiz' };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showUserPanel();
+                    showMessage('register-message', 'Kayıt başarılı!', 'success');
+                    loadLeaderboard();
+                } else {
+                    showMessage('register-message', 'Hata: ' + (result.error || 'Bilinmeyen'), 'error');
+                }
+            } catch (error) {
+                showMessage('register-message', 'Hata: ' + error.message, 'error');
+            }
+        }
+        
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            showLoginForm();
+            showMessage('login-message', 'Çıkış yapıldı', 'success');
+        }
+        
+        async function updateScore(points) {
+            if (!currentUser) return;
+            try {
+                const action = points > 0 ? 'increment' : 'decrement';
+                const absPoints = Math.abs(points);
+                const response = await fetch(, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: currentUser.name, score: absPoints, action: action })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    currentUser.score = result.data.newScore;
+                    currentUser.badge = result.data.badge;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    updateUserDisplay();
+                    loadLeaderboard();
+                    showMessage('login-message', `Skor ${points > 0 ? 'artırıldı' : 'azaltıldı'}: ${currentUser.score}`, 'success');
+                }
+            } catch (error) {
+                showMessage('login-message', 'Hata: ' + error.message, 'error');
+            }
+        }
+        
+        async function resetUserScore() {
+            if (!currentUser || !confirm('Skor sıfırlanacak. Emin misiniz?')) return;
+            try {
+                const response = await fetch(, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: currentUser.name, score: 0, action: 'update' })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    currentUser.score = 0;
+                    currentUser.badge = '🌱 YENİ';
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    updateUserDisplay();
+                    loadLeaderboard();
+                    showMessage('login-message', 'Skor sıfırlandı!', 'success');
+                }
+            } catch (error) {
+                showMessage('login-message', 'Hata: ' + error.message, 'error');
+            }
+        }
+        
+        async function loadLeaderboard() {
+            try {
+                document.getElementById('loading-leaderboard').style.display = 'block';
+                document.getElementById('leaderboard-container').style.display = 'none';
+                const data = await fetchLeaderboard();
+                renderLeaderboard(data);
+                document.getElementById('loading-leaderboard').style.display = 'none';
+                document.getElementById('leaderboard-container').style.display = 'block';
+            } catch (error) {
+                document.getElementById('loading-leaderboard').style.display = 'none';
+                showMessage('leaderboard-message', 'Hata: ' + error.message, 'error');
+            }
+        }
+        
+        async function fetchLeaderboard() {
+            if (.includes('https://script.google.com/macros/s/AKfycbxuRkQd2SJiXskC04DJ2IIron5ogdKnCBiMyL2EVrcGOql44oGmMdQFy_FqZVkjCarD/exec')) {
+                return [
+                    { name: 'Ahmet', score: 1250, badge: '🥈 GÜMÜŞ' },
+                    { name: 'Ayşe', score: 980, badge: '🥉 BRONZ' },
+                    { name: 'Mehmet', score: 750, badge: '🎯 İYİ' },
+                    { name: 'demo', score: 100, badge: '⭐ ALTIN' },
+                    { name: 'Zeynep', score: 85, badge: '🌱 YENİ' }
+                ];
+            }
+            try {
+                const response = await fetch( + '?limit=10');
+                const data = await response.json();
+                return data.success ? (data.leaderboard || []) : [];
+            } catch (error) {
+                console.warn('API hatası:', error.message);
+                return [];
+            }
+        }
+        
+        function renderLeaderboard(data) {
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;color:#666">Henüz veri yok</td></tr>';
+                return;
+            }
+            data.forEach((user, index) => {
+                const row = document.createElement('tr');
+                if (currentUser && user.name === currentUser.name) {
+                    row.style.background = 'rgba(74, 20, 140, 0.1)';
+                }
+                row.innerHTML = `
+                    <td class="rank">${index + 1} ${index < 3 ? ['🥇','🥈','🥉'][index] : ''}</td>
+                    <td><strong>${user.name}</strong>${currentUser && user.name === currentUser.name ? ' (Siz)' : ''}</td>
+                    <td><strong>${user.score}</strong></td>
+                    <td>${user.badge}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function showUserPanel() {
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('register-form').classList.remove('active');
+            document.getElementById('user-panel').classList.add('active');
+            updateUserDisplay();
+            loadLeaderboard();
+        }
+        
+        function showLoginForm() {
+            document.getElementById('login-form').classList.add('active');
+            document.getElementById('register-form').classList.remove('active');
+            document.getElementById('user-panel').classList.remove('active');
+            document.getElementById('tab-login').classList.add('active');
+            document.getElementById('tab-register').classList.remove('active');
+        }
+        
+        function updateUserDisplay() {
+            if (!currentUser) return;
+            document.getElementById('welcome-user').textContent = currentUser.name;
+            document.getElementById('current-score').textContent = currentUser.score;
+            document.getElementById('user-badge').textContent = currentUser.badge;
+        }
+        
+        function showMessage(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'message ' + type;
+            if (type !== 'info') {
+                setTimeout(() => { element.className = 'message'; element.textContent = ''; }, 5000);
+            }
+        }
+    </script>
 </body>
 </html>
