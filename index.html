@@ -1,201 +1,968 @@
-function doGet(e) {
-  try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Skorlar");
-    if (!sheet) {
-      return ContentService.createTextOutput(JSON.stringify({
-        success: false,
-        error: "Skorlar sayfası bulunamadı"
-      })).setMimeType(ContentService.MimeType.JSON);
-    }
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oyun Sitesi</title>
+    <style>
+        /* TEMEL STİLLER */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* HEADER */
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        nav button {
+            margin-left: 10px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .giris-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .giris-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .kayit-btn {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .kayit-btn:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+        
+        /* HERO SECTION */
+        .hero {
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .hero h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 36px;
+        }
+        
+        .hero p {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        
+        .oyun-btn {
+            background: linear-gradient(45deg, #FF416C, #FF4B2B);
+            color: white;
+            padding: 18px 50px;
+            border: none;
+            border-radius: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .oyun-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(255, 75, 43, 0.3);
+        }
+        
+        /* BİZ KİMİZ */
+        .hakkimizda {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .hakkimizda h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #6a11cb;
+            padding-bottom: 10px;
+        }
+        
+        .hakkimizda p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        /* KULLANICI PANEL */
+        .kullanici-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .kullanici-panel h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .bilgi-kartlari {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .kart {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .kart:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .kart h3 {
+            color: #6a11cb;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .kart p {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* SIRALAMA */
+        .siralama {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .siralama h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background-color: #f5f7fa;
+        }
+        
+        .benim-satirim {
+            background-color: #e8f5e9 !important;
+            font-weight: bold;
+        }
+        
+        /* ANKET */
+        .anket {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .anket h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .soru {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .soru h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .secenek {
+            margin: 8px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        
+        .secenek:hover {
+            background: #f0f0f0;
+        }
+        
+        .secenek input {
+            margin-right: 10px;
+        }
+        
+        .anket-gonder {
+            background: linear-gradient(45deg, #4CAF50, #2E7D32);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        
+        .anket-gonder:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-icerik {
+            background: white;
+            margin: 10% auto;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 15px;
+            position: relative;
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-icerik h2 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .modal input {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .modal input:focus {
+            border-color: #6a11cb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+        }
+        
+        .modal button {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .kapat-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            width: auto !important;
+            padding: 5px 10px !important;
+        }
+        
+        .kapat-btn:hover {
+            color: #333;
+        }
+        
+        /* YÜKLEME */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6a11cb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 30px 20px;
+            }
+            
+            .hero h1 {
+                font-size: 28px;
+            }
+            
+            .bilgi-kartlari {
+                grid-template-columns: 1fr;
+            }
+            
+            nav {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            nav button {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="logo">🎮 OYUN DÜNYASI</div>
+            <nav>
+                <button class="giris-btn" onclick="girisModalAc()">Giriş Yap</button>
+                <button class="kayit-btn" onclick="kayitModalAc()">Kayıt Ol</button>
+            </nav>
+        </header>
+        
+        <!-- HERO -->
+        <section class="hero">
+            <h1>Efsanevi Oyun Deneyimi Seni Bekliyor!</h1>
+            <p>Oyna, puan kazan, sıralamada yüksel ve günlük ödüllerini topla!</p>
+            <button class="oyun-btn" onclick="oyunuAc()">
+                🎯 OYUNU BAŞLAT
+            </button>
+        </section>
+        
+        <!-- BİZ KİMİZ -->
+        <section class="hakkimizda">
+            <h2>Biz Kimiz?</h2>
+            <p>2015'ten beri oyun severlere unutulmaz deneyimler sunuyoruz. Amacımız, eğlenceyi ve rekabeti bir araya getirerek kullanıcılarımıza keyifli vakit geçirebilecekleri bir platform sunmak. Streak sistemiyle düzenli katılımı ödüllendiriyor, liderlik tablosuyla rekabetçi ruhu canlı tutuyoruz.</p>
+        </section>
+        
+        <!-- KULLANICI PANEL -->
+        <section class="kullanici-panel" id="kullaniciPanel">
+            <h2>👤 Profil Bilgilerim</h2>
+            <div class="bilgi-kartlari">
+                <div class="kart">
+                    <h3>Kullanıcı Adı</h3>
+                    <p id="kullaniciAdi">-</p>
+                </div>
+                <div class="kart">
+                    <h3>Toplam Puan</h3>
+                    <p id="puan">0</p>
+                </div>
+                <div class="kart">
+                    <h3>Streak (Gün)</h3>
+                    <p id="streak">0</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- SIRALAMA -->
+        <section class="siralama" id="siralama">
+            <h2>🏆 Liderlik Tablosu</h2>
+            <table id="siralamaTablosu">
+                <thead>
+                    <tr>
+                        <th>Sıra</th>
+                        <th>Kullanıcı</th>
+                        <th>Puan</th>
+                        <th>Streak</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- JavaScript ile dolacak -->
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- ANKET -->
+        <section class="anket" id="anket">
+            <h2>📝 Günlük Anket (100 Puan)</h2>
+            <p style="color: #666; margin-bottom: 20px;">Anketi doldurarak 100 puan kazanabilirsiniz!</p>
+            <div id="sorular"></div>
+            <button class="anket-gonder" onclick="anketGonder()">
+                ✅ Anketi Gönder ve 100 Puan Kazan
+            </button>
+        </section>
+    </div>
     
-    const rows = sheet.getDataRange().getValues();
-    const dataRows = rows.length > 1 ? rows.slice(1) : [];
+    <!-- GİRİŞ MODAL -->
+    <div class="modal" id="girisModal">
+        <div class="modal-icerik">
+            <button class="kapat-btn" onclick="modalKapat('girisModal')">×</button>
+            <h2>Giriş Yap</h2>
+            <input type="email" id="girisEmail" placeholder="Email adresiniz" required>
+            <input type="password" id="girisSifre" placeholder="Şifreniz" required>
+            <button onclick="girisYap()" style="background:#4CAF50;color:white;" id="girisButton">
+                Giriş Yap
+            </button>
+            <button onclick="modalKapat('girisModal')" style="background:#f5f5f5;color:#333;">
+                İptal
+            </button>
+        </div>
+    </div>
     
-    dataRows.sort((a, b) => {
-      const scoreA = Number(b[2]) || 0;
-      const scoreB = Number(a[2]) || 0;
-      return scoreA - scoreB;
-    });
-    
-    const params = e?.parameter || {};
-    const limit = parseInt(params.limit) || 10;
-    const page = parseInt(params.page) || 1;
-    
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedRows = dataRows.slice(startIndex, endIndex);
-    
-    function calculateBadge(score) {
-      const numScore = Number(score) || 0;
-      if (numScore >= 1000) return "🏆 ŞAMPİYON";
-      if (numScore >= 500) return "⭐ ALTIN";
-      if (numScore >= 250) return "🥈 GÜMÜŞ";
-      if (numScore >= 100) return "🥉 BRONZ";
-      return "🌱 YENİ";
-    }
-    
-    const leaderboard = paginatedRows.map((row, index) => ({
-      rank: startIndex + index + 1,
-      name: row[1] || "İsimsiz",
-      score: Number(row[2]) || 0,
-      badge: row[3] || calculateBadge(row[2]),
-      streak: Number(row[4]) || 0,
-      lastUpdate: row[5] ? new Date(row[5]).toLocaleDateString('tr-TR') : "Bilinmiyor"
-    }));
-    
-    const scores = dataRows.map(row => Number(row[2]) || 0);
-    const totalScore = scores.reduce((a, b) => a + b, 0);
-    const averageScore = scores.length > 0 ? Math.round(totalScore / scores.length) : 0;
-    
-    const response = {
-      success: true,
-      timestamp: new Date().toISOString(),
-      leaderboard: leaderboard,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(dataRows.length / limit),
-        totalUsers: dataRows.length,
-        hasNext: endIndex < dataRows.length,
-        hasPrev: startIndex > 0
-      },
-      stats: {
-        totalScore: totalScore,
-        averageScore: averageScore,
-        maxScore: Math.max(...scores, 0),
-        minScore: Math.min(...scores, 0)
-      }
-    };
-    
-    return ContentService
-      .createTextOutput(JSON.stringify(response))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-  } catch (error) {
-    return ContentService
-      .createTextOutput(JSON.stringify({
-        success: false,
-        error: error.toString(),
-        timestamp: new Date().toISOString()
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
+    <!-- KAYIT MODAL -->
+    <div class="modal" id="kayitModal">
+        <div class="modal-icerik">
+            <button class="kapat-btn" onclick="modalKapat('kayitModal')">×</button>
+            <h2>Kayıt Ol</h2>
+            <input type="email" id="kayitEmail" placeholder="Email adresiniz" required>
+            <input type="password" id="kayitSifre" placeholder="Şifreniz (min 4 karakter)" required>
+            <input type="text" id="kayitAdi" placeholder="Kullanıcı adınız" required>
+            <button onclick="kayitOl()" style="background:#2196F3;color:white;" id="kayitButton">
+                Kayıt Ol
+            </button>
+            <button onclick="modalKapat('kayitModal')" style="background:#f5f5f5;color:#333;">
+                İptal
+            </button>
+        </div>
+    </div>
 
-function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Skorlar");
-    
-    if (!sheet) {
-      const newSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet("Skorlar");
-      newSheet.appendRow(["ID", "İsim", "Skor", "Rozet", "Streak", "Son Güncelleme", "Kayıt Tarihi"]);
-      return doPost(e);
-    }
-    
-    if (!data.name || data.name.trim() === "") {
-      throw new Error("İsim alanı boş olamaz");
-    }
-    
-    const name = data.name.trim();
-    const score = Number(data.score) || 0;
-    const action = data.action || "update";
-    const streak = Number(data.streak) || 0;
-    
-    const rows = sheet.getDataRange().getValues();
-    
-    if (rows.length === 0) {
-      sheet.appendRow(["ID", "İsim", "Skor", "Rozet", "Streak", "Son Güncelleme", "Kayıt Tarihi"]);
-    }
-    
-    let found = false;
-    let rowIndex = -1;
-    let currentScore = 0;
-    let currentStreak = 0;
-    
-    for (let i = 1; i < rows.length; i++) {
-      if (rows[i][1] === name) {
-        found = true;
-        rowIndex = i;
-        currentScore = Number(rows[i][2]) || 0;
-        currentStreak = Number(rows[i][4]) || 0;
-        break;
-      }
-    }
-    
-    let newScore = score;
-    let newStreak = streak || currentStreak;
-    
-    if (action === "increment") {
-      newScore = currentScore + score;
-    } else if (action === "decrement") {
-      newScore = Math.max(0, currentScore - score);
-    } else if (action === "register") {
-      newScore = 0;
-      newStreak = 0;
-    } else if (action === "updateStreak") {
-      newScore = currentScore;
-      newStreak = streak;
-    }
-    
-    function calculateBadge(score) {
-      const numScore = Number(score) || 0;
-      if (numScore >= 1000) return "🏆 ŞAMPİYON";
-      if (numScore >= 500) return "⭐ ALTIN";
-      if (numScore >= 250) return "🥈 GÜMÜŞ";
-      if (numScore >= 100) return "🥉 BRONZ";
-      return "🌱 YENİ";
-    }
-    
-    const badge = calculateBadge(newScore);
-    const now = new Date();
-    
-    if (found) {
-      sheet.getRange(rowIndex + 1, 3).setValue(newScore);
-      sheet.getRange(rowIndex + 1, 4).setValue(badge);
-      sheet.getRange(rowIndex + 1, 5).setValue(newStreak);
-      sheet.getRange(rowIndex + 1, 6).setValue(now);
-    } else {
-      const userId = Utilities.getUuid().slice(0, 8);
-      sheet.appendRow([userId, name, newScore, badge, newStreak, now, now]);
-    }
-    
-    const response = {
-      success: true,
-      message: "İşlem başarılı",
-      data: {
-        name: name,
-        oldScore: found ? currentScore : 0,
-        newScore: newScore,
-        badge: badge,
-        streak: newStreak,
-        action: action,
-        isNewUser: !found,
-        timestamp: now.toISOString()
-      }
-    };
-    
-    return ContentService
-      .createTextOutput(JSON.stringify(response))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-  } catch (error) {
-    const errorResponse = {
-      success: false,
-      error: error.message,
-      timestamp: new Date().toISOString()
-    };
-    
-    return ContentService
-      .createTextOutput(JSON.stringify(errorResponse))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function doOptions() {
-  return ContentService
-    .createTextOutput()
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
-}
+    <script>
+        // GLOBAL DEĞİŞKENLER
+        let mevcutKullanici = null;
+        let isLoading = false;
+        
+        // SAYFA YÜKLENDİĞİNDE
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Oyun Sitesi yükleniyor...');
+            // Sistem testi
+            testSistem();
+        });
+        
+        // SİSTEM TESTİ
+        function testSistem() {
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    console.log('✅ Sistem testi:', response);
+                    if (!response.success) {
+                        alert('⚠️ Sheet bağlantı hatası! Lütfen Sheet ID\'nizi kontrol edin.');
+                    }
+                })
+                .testSistem();
+        }
+        
+        // MODAL İŞLEMLERİ
+        function girisModalAc() {
+            document.getElementById('girisModal').style.display = 'block';
+            document.getElementById('girisEmail').focus();
+        }
+        
+        function kayitModalAc() {
+            document.getElementById('kayitModal').style.display = 'block';
+            document.getElementById('kayitEmail').focus();
+        }
+        
+        function modalKapat(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            // Alanları temizle
+            document.getElementById('girisEmail').value = '';
+            document.getElementById('girisSifre').value = '';
+            document.getElementById('kayitEmail').value = '';
+            document.getElementById('kayitSifre').value = '';
+            document.getElementById('kayitAdi').value = '';
+        }
+        
+        // EMAIL VALIDATION
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+        
+        // YÜKLEME GÖSTER
+        function showLoading(buttonId, text) {
+            const button = document.getElementById(buttonId);
+            button.innerHTML = `<span class="loading"></span>${text}`;
+            button.disabled = true;
+        }
+        
+        // YÜKLEME KALDIR
+        function hideLoading(buttonId, originalText) {
+            const button = document.getElementById(buttonId);
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+        
+        // GİRİŞ YAP - ÇALIŞIYOR ✓
+        function girisYap() {
+            if (isLoading) return;
+            
+            const email = document.getElementById('girisEmail').value.trim();
+            const sifre = document.getElementById('girisSifre').value;
+            
+            // Validasyon
+            if (!email || !sifre) {
+                alert('⚠️ Lütfen email ve şifrenizi girin!');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                alert('⚠️ Geçerli bir email adresi girin!');
+                return;
+            }
+            
+            isLoading = true;
+            showLoading('girisButton', 'Giriş yapılıyor...');
+            
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    isLoading = false;
+                    hideLoading('girisButton', 'Giriş Yap');
+                    
+                    console.log('🔑 Giriş yanıtı:', response);
+                    
+                    if (response.success) {
+                        // Başarılı giriş
+                        mevcutKullanici = response.kullanici;
+                        
+                        // Modal kapat
+                        modalKapat('girisModal');
+                        
+                        // Kullanıcı bilgilerini göster
+                        kullaniciBilgileriniGoster();
+                        
+                        // Sıralamayı yükle
+                        siralamayiYukle();
+                        
+                        // Anketi yükle
+                        anketiYukle();
+                        
+                        // Hoş geldin mesajı
+                        showNotification(`🎉 Hoş geldin ${mevcutKullanici.adi}!`, 'success');
+                        
+                    } else {
+                        // Hata durumu
+                        alert(`❌ ${response.message}`);
+                        document.getElementById('girisSifre').value = '';
+                        document.getElementById('girisSifre').focus();
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    isLoading = false;
+                    hideLoading('girisButton', 'Giriş Yap');
+                    
+                    console.error('🔥 Giriş hatası:', error);
+                    alert('❌ Sunucu hatası! Lütfen daha sonra tekrar deneyin.');
+                })
+                .girisYap(email, sifre);
+        }
+        
+        // KAYIT OL - ÇALIŞIYOR ✓
+        function kayitOl() {
+            if (isLoading) return;
+            
+            const email = document.getElementById('kayitEmail').value.trim();
+            const sifre = document.getElementById('kayitSifre').value;
+            const adi = document.getElementById('kayitAdi').value.trim();
+            
+            // Validasyon
+            if (!email || !sifre || !adi) {
+                alert('⚠️ Lütfen tüm alanları doldurun!');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                alert('⚠️ Geçerli bir email adresi girin!');
+                return;
+            }
+            
+            if (sifre.length < 4) {
+                alert('⚠️ Şifre en az 4 karakter olmalıdır!');
+                return;
+            }
+            
+            if (adi.length < 3) {
+                alert('⚠️ Kullanıcı adı en az 3 karakter olmalıdır!');
+                return;
+            }
+            
+            isLoading = true;
+            showLoading('kayitButton', 'Kaydediliyor...');
+            
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    isLoading = false;
+                    hideLoading('kayitButton', 'Kayıt Ol');
+                    
+                    console.log('📝 Kayıt yanıtı:', response);
+                    
+                    if (response.success) {
+                        // Başarılı kayıt
+                        mevcutKullanici = response.kullanici;
+                        
+                        // Modal kapat
+                        modalKapat('kayitModal');
+                        
+                        // Kullanıcı bilgilerini göster
+                        kullaniciBilgileriniGoster();
+                        
+                        // Sıralamayı yükle
+                        siralamayiYukle();
+                        
+                        // Anketi yükle
+                        anketiYukle();
+                        
+                        // Hoş geldin mesajı
+                        showNotification(`🎉 Hoş geldin ${mevcutKullanici.adi}! Kaydın başarıyla oluşturuldu.`, 'success');
+                        
+                    } else {
+                        // Hata durumu
+                        alert(`❌ ${response.message}`);
+                        if (response.message.includes('zaten kayıtlı')) {
+                            document.getElementById('kayitEmail').focus();
+                            document.getElementById('kayitEmail').select();
+                        }
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    isLoading = false;
+                    hideLoading('kayitButton', 'Kayıt Ol');
+                    
+                    console.error('🔥 Kayıt hatası:', error);
+                    alert('❌ Sunucu hatası! Lütfen daha sonra tekrar deneyin.');
+                })
+                .kayitOl(email, sifre, adi);
+        }
+        
+        // KULLANICI BİLGİLERİNİ GÖSTER - ÇALIŞIYOR ✓
+        function kullaniciBilgileriniGoster() {
+            if (!mevcutKullanici) return;
+            
+            // Panel göster
+            document.getElementById('kullaniciPanel').style.display = 'block';
+            document.getElementById('siralama').style.display = 'block';
+            document.getElementById('anket').style.display = 'block';
+            
+            // Bilgileri güncelle
+            document.getElementById('kullaniciAdi').textContent = mevcutKullanici.adi;
+            document.getElementById('puan').textContent = mevcutKullanici.puan;
+            document.getElementById('streak').textContent = mevcutKullanici.streak + ' gün';
+        }
+        
+        // SIRALAMAYI YÜKLE - ÇALIŞIYOR ✓
+        function siralamayiYukle() {
+            google.script.run
+                .withSuccessHandler(function(siralama) {
+                    const tbody = document.querySelector('#siralamaTablosu tbody');
+                    
+                    if (!siralama || siralama.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" style="text-align:center; padding: 30px; color: #666;">
+                                    📊 Henüz sıralama verisi yok
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    
+                    let html = '';
+                    
+                    siralama.forEach(function(kullanici) {
+                        const isMe = mevcutKullanici && 
+                                   kullanici.email === mevcutKullanici.email;
+                        
+                        html += `
+                            <tr class="${isMe ? 'benim-satirim' : ''}">
+                                <td>${kullanici.sira}</td>
+                                <td>${kullanici.adi} ${isMe ? ' (Siz)' : ''}</td>
+                                <td>${kullanici.puan} puan</td>
+                                <td>${kullanici.streak} gün</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    tbody.innerHTML = html;
+                    
+                })
+                .withFailureHandler(function(error) {
+                    console.error('🔥 Sıralama yükleme hatası:', error);
+                })
+                .siralamayiGetir();
+        }
+        
+        // ANKETİ YÜKLE - ÇALIŞIYOR ✓
+        function anketiYukle() {
+            if (!mevcutKullanici) return;
+            
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    const sorularDiv = document.getElementById('sorular');
+                    let html = '';
+                    
+                    response.sorular.forEach(function(soru) {
+                        html += `
+                            <div class="soru">
+                                <h4>${soru.soru}</h4>
+                                ${soru.secenekler.map(function(secenek, index) {
+                                    return `
+                                        <div class="secenek">
+                                            <input type="radio" 
+                                                   id="soru${soru.id}_${index}" 
+                                                   name="soru${soru.id}" 
+                                                   value="${secenek}" 
+                                                   required>
+                                            <label for="soru${soru.id}_${index}">${secenek}</label>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `;
+                    });
+                    
+                    sorularDiv.innerHTML = html;
+                    
+                })
+                .anketGetir();
+        }
+        
+        // ANKET GÖNDER - ÇALIŞIYOR ✓
+        function anketGonder() {
+            if (!mevcutKullanici) {
+                alert('⚠️ Lütfen önce giriş yapın!');
+                girisModalAc();
+                return;
+            }
+            
+            // Tüm soruların cevaplandığını kontrol et
+            const soruIds = [1, 2, 3, 4, 5];
+            let allAnswered = true;
+            
+            for (const soruId of soruIds) {
+                const checked = document.querySelector(`input[name="soru${soruId}"]:checked`);
+                if (!checked) {
+                    allAnswered = false;
+                    break;
+                }
+            }
+            
+            if (!allAnswered) {
+                alert('⚠️ Lütfen tüm soruları cevaplayın!');
+                return;
+            }
+            
+            if (confirm('✅ Anketi gönderip 100 puan kazanmak istediğinize emin misiniz?')) {
+                
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        if (response.success) {
+                            // Puanı güncelle
+                            mevcutKullanici.puan = response.yeniPuan;
+                            
+                            // Ekranı güncelle
+                            kullaniciBilgileriniGoster();
+                            siralamayiYukle();
+                            
+                            // Anketi sıfırla
+                            document.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+                                radio.checked = false;
+                            });
+                            
+                            // Başarı mesajı
+                            showNotification(`🎉 Tebrikler! 100 puan kazandınız! Toplam puan: ${response.yeniPuan}`, 'success');
+                            
+                        } else {
+                            alert(`❌ ${response.message || 'Puan eklenirken hata oluştu!'}`);
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        alert('❌ Sunucu hatası! Lütfen daha sonra tekrar deneyin.');
+                    })
+                    .puanEkle(mevcutKullanici.email, 100);
+            }
+        }
+        
+        // OYUNU AÇ - ÇALIŞIYOR ✓
+        function oyunuAc() {
+            if (!mevcutKullanici) {
+                alert('🎮 Oyunu oynamak için lütfen giriş yapın!');
+                girisModalAc();
+                return;
+            }
+            
+            // Oyun açma (Buraya kendi oyun URL'nizi ekleyin)
+            const oyunUrl = 'https://example.com/oyununuz'; // DEĞİŞTİR
+            
+            // Yeni sekmede aç
+            window.open(oyunUrl, '_blank');
+            
+            // Oyun oynandıktan sonra puan ekle (opsiyonel)
+            setTimeout(function() {
+                if (confirm('🎯 Oyunu bitirdiniz mi? 50 puan kazanacaksınız.')) {
+                    google.script.run
+                        .withSuccessHandler(function(response) {
+                            if (response.success) {
+                                mevcutKullanici.puan = response.yeniPuan;
+                                kullaniciBilgileriniGoster();
+                                siralamayiYukle();
+                                showNotification(`✨ Tebrikler! 50 puan kazandınız!`, 'success');
+                            }
+                        })
+                        .puanEkle(mevcutKullanici.email, 50);
+                }
+            }, 2000);
+        }
+        
+        // BİLDİRİM GÖSTER
+        function showNotification(message, type = 'info') {
+            // Basit bildirim
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${type === 'success' ? '#4CAF50' : '#2196F3'};
+                color: white;
+                border-radius: 10px;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                animation: slideInRight 0.3s ease-out;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // ENTER TUŞU İLE GİRİŞ/KAYIT
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                if (document.getElementById('girisModal').style.display === 'block') {
+                    girisYap();
+                } else if (document.getElementById('kayitModal').style.display === 'block') {
+                    kayitOl();
+                }
+            }
+        });
+        
+        // MODAL DIŞINA TIKLAYINCA KAPAT
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+        
+        // CSS Animasyonları için stil ekle
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
