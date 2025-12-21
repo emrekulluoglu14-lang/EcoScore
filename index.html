@@ -3,141 +3,566 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 Oyun Dünyası</title>
+    <title>🎮 OYUN SİTESİ - ÇALIŞIYOR</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://apis.google.com/js/api.js"></script>
+    <style>
+        /* TEMEL STİLLER */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* HEADER */
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6a11cb;
+        }
+        
+        nav button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .giris-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .kayit-btn {
+            background: #2196F3;
+            color: white;
+        }
+        
+        /* HERO */
+        .hero {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .oyun-btn {
+            background: #FF5722;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        
+        /* BİZ KİMİZ */
+        .hakkimizda {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        /* KULLANICI PANEL */
+        .kullanici-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .bilgi-kartlari {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .kart {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        /* SIRALAMA */
+        .siralama {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #6a11cb;
+            color: white;
+        }
+        
+        /* ANKET */
+        .anket {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .soru {
+            margin-bottom: 25px;
+        }
+        
+        .soru h4 {
+            margin-bottom: 10px;
+        }
+        
+        .secenek {
+            margin: 5px 0;
+        }
+        
+        .anket-gonder {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+        
+        .modal-icerik {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+        
+        .modal input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .modal button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6a11cb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <!-- HEADER -->
         <header>
-            <div class="logo">
-                <i class="fas fa-gamepad"></i>
-                OYUN DÜNYASI
-            </div>
+            <div class="logo">🎮 OYUN DÜNYASI</div>
             <nav>
-                <button class="giris-btn" onclick="girisModalAc()">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Giriş Yap
-                </button>
-                <button class="kayit-btn" onclick="kayitModalAc()">
-                    <i class="fas fa-user-plus"></i>
-                    Kayıt Ol
-                </button>
+                <button class="giris-btn" onclick="girisModalAc()">Giriş Yap</button>
+                <button class="kayit-btn" onclick="kayitModalAc()">Kayıt Ol</button>
             </nav>
         </header>
         
         <!-- HERO -->
         <section class="hero">
-            <h1>🚀 Efsanevi Oyun Macerası Başlıyor!</h1>
-            <p>Her gün oyna, puan kazan, sıralamada yüksel ve benzersiz ödüllerin sahibi ol!</p>
-            <button class="oyun-btn" onclick="oyunuAc()">
-                <i class="fas fa-play-circle"></i>
-                OYUNU BAŞLAT
-            </button>
+            <h1>Oyun Macerası Başlıyor!</h1>
+            <p>Oyna, puan kazan, sıralamada yüksel!</p>
+            <button class="oyun-btn" onclick="oyunuAc()">OYUNU AÇ</button>
         </section>
         
         <!-- BİZ KİMİZ -->
         <section class="hakkimizda">
-            <h2><i class="fas fa-users"></i> Biz Kimiz?</h2>
-            <p>Oyun dünyasının öncü platformuyuz! 2015'ten beri milyonlarca oyun severe unutulmaz deneyimler sunuyoruz. Amacımız, eğlenceyi ve rekabeti bir araya getirerek kullanıcılarımıza keyifli vakit geçirebilecekleri bir platform sunmak. Günlük streak sistemiyle düzenli katılımı ödüllendiriyor, liderlik tablosuyla rekabetçi ruhu canlı tutuyor, özel etkinliklerle sürprizler yapıyoruz.</p>
+            <h2>Biz Kimiz?</h2>
+            <p>Oyun platformuyuz. Streak sistemi ve sıralama ile eğlence sunuyoruz.</p>
         </section>
         
         <!-- KULLANICI PANEL -->
         <section class="kullanici-panel" id="kullaniciPanel">
-            <h2><i class="fas fa-user-circle user-icon"></i> Profilim</h2>
+            <h2>Profilim</h2>
             <div class="bilgi-kartlari">
                 <div class="kart">
-                    <h3><i class="fas fa-user user-icon"></i> Kullanıcı Adı</h3>
+                    <h3>Kullanıcı Adı</h3>
                     <p id="kullaniciAdi">-</p>
                 </div>
                 <div class="kart">
-                    <h3><i class="fas fa-star puan-icon"></i> Toplam Puan</h3>
+                    <h3>Puan</h3>
                     <p id="puan">0</p>
                 </div>
                 <div class="kart">
-                    <h3><i class="fas fa-fire streak-icon"></i> Streak (Gün)</h3>
-                    <p id="streak">0</p>
+                    <h3>Streak</h3>
+                    <p id="streak">0 gün</p>
                 </div>
             </div>
         </section>
         
         <!-- SIRALAMA -->
         <section class="siralama" id="siralama">
-            <h2><i class="fas fa-trophy rank-icon"></i> Liderlik Tablosu</h2>
+            <h2>Liderlik Tablosu</h2>
             <table id="siralamaTablosu">
                 <thead>
                     <tr>
-                        <th><i class="fas fa-hashtag"></i> Sıra</th>
-                        <th><i class="fas fa-user"></i> Kullanıcı</th>
-                        <th><i class="fas fa-star"></i> Puan</th>
-                        <th><i class="fas fa-fire"></i> Streak</th>
+                        <th>Sıra</th>
+                        <th>Kullanıcı</th>
+                        <th>Puan</th>
+                        <th>Streak</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td colspan="4" style="text-align:center; padding: 40px; color: #888;">Giriş yapınca liderlik tablosu görünecek</td></tr>
+                    <tr><td colspan="4" style="text-align:center;padding:20px;">Giriş yapınca görünecek</td></tr>
                 </tbody>
             </table>
         </section>
         
         <!-- ANKET -->
         <section class="anket" id="anket">
-            <h2><i class="fas fa-poll survey-icon"></i> Günlük Anket</h2>
-            <p style="color: #666; margin-bottom: 25px; font-size: 18px;">
-                <i class="fas fa-gift" style="color: #FF6B6B;"></i>
-                Anketi doldurarak <strong>100 puan</strong> kazanabilirsiniz!
-            </p>
-            <div id="sorular">
-                <div style="text-align: center; padding: 40px; color: #888;">
-                    <i class="fas fa-sign-in-alt" style="font-size: 48px; margin-bottom: 20px; color: #ddd;"></i>
-                    <p>Giriş yapınca anket soruları görünecek</p>
-                </div>
-            </div>
-            <button class="anket-gonder" onclick="anketGonder()" id="anketGonderBtn">
-                <i class="fas fa-paper-plane"></i>
-                Anketi Gönder ve 100 Puan Kazan
-            </button>
+            <h2>Günlük Anket (100 Puan)</h2>
+            <div id="sorular"></div>
+            <button class="anket-gonder" onclick="anketGonder()">Anketi Gönder (100 Puan)</button>
         </section>
     </div>
     
-    <!-- MODALLER -->
+    <!-- GİRİŞ MODAL -->
     <div class="modal" id="girisModal">
         <div class="modal-icerik">
-            <button class="kapat-btn" onclick="modalKapat('girisModal')">×</button>
-            <h2><i class="fas fa-sign-in-alt"></i> Giriş Yap</h2>
-            <input type="email" id="girisEmail" placeholder="📧 Email adresiniz" required>
-            <input type="password" id="girisSifre" placeholder="🔒 Şifreniz" required>
-            <button onclick="girisYap()" style="background:linear-gradient(45deg, #00b09b, #96c93d);color:white;" id="girisButton">
-                <i class="fas fa-sign-in-alt"></i> Giriş Yap
+            <h2>Giriş Yap</h2>
+            <input type="email" id="girisEmail" placeholder="Email" required>
+            <input type="password" id="girisSifre" placeholder="Şifre" required>
+            <button onclick="girisYap()" style="background:#4CAF50;color:white;" id="girisButton">
+                Giriş Yap
             </button>
-            <button onclick="modalKapat('girisModal')" style="background:#f5f5f5;color:#333;">
-                <i class="fas fa-times"></i> İptal
+            <button onclick="modalKapat('girisModal')" style="background:#f44336;color:white;">
+                İptal
             </button>
         </div>
     </div>
     
+    <!-- KAYIT MODAL -->
     <div class="modal" id="kayitModal">
         <div class="modal-icerik">
-            <button class="kapat-btn" onclick="modalKapat('kayitModal')">×</button>
-            <h2><i class="fas fa-user-plus"></i> Kayıt Ol</h2>
-            <input type="email" id="kayitEmail" placeholder="📧 Email adresiniz" required>
-            <input type="password" id="kayitSifre" placeholder="🔒 Şifreniz (min 4 karakter)" required>
-            <input type="text" id="kayitAdi" placeholder="👤 Kullanıcı adınız" required>
-            <button onclick="kayitOl()" style="background:linear-gradient(45deg, #ff7e5f, #feb47b);color:white;" id="kayitButton">
-                <i class="fas fa-user-plus"></i> Kayıt Ol
+            <h2>Kayıt Ol</h2>
+            <input type="email" id="kayitEmail" placeholder="Email" required>
+            <input type="password" id="kayitSifre" placeholder="Şifre" required>
+            <input type="text" id="kayitAdi" placeholder="Kullanıcı Adı" required>
+            <button onclick="kayitOl()" style="background:#2196F3;color:white;" id="kayitButton">
+                Kayıt Ol
             </button>
-            <button onclick="modalKapat('kayitModal')" style="background:#f5f5f5;color:#333;">
-                <i class="fas fa-times"></i> İptal
+            <button onclick="modalKapat('kayitModal')" style="background:#f44336;color:white;">
+                İptal
             </button>
         </div>
     </div>
 
-    <!-- Apps Script URL'sini buraya gireceksin -->
     <script>
-        // GOOGLE APPS SCRIPT URL'Nİ BURAYA YAPIŞTIR
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/exec';
+        // APPS SCRIPT URL'SİNİ BURAYA YAPIŞTIR
+        // Apps Script'i deploy ettiğinde alacağın URL'yi buraya yapıştır
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9xPpQXftcCLhXQpxfQwNvUh2j4TkFv_UaLrP1uVp8tS5CFk-WJYvbFJhPq0Fg8Mjt/exec';
+        
+        let mevcutKullanici = null;
+        let callbackId = 0;
+        
+        // APPS SCRIPT'E İSTEK GÖNDER
+        function callGoogleScript(action, params, callback) {
+            callbackId++;
+            const callbackName = 'callback_' + callbackId;
+            
+            window[callbackName] = function(response) {
+                delete window[callbackName];
+                document.head.removeChild(script);
+                callback(response);
+            };
+            
+            const urlParams = new URLSearchParams({
+                callback: callbackName,
+                action: action,
+                ...params
+            });
+            
+            const script = document.createElement('script');
+            script.src = APPS_SCRIPT_URL + '?' + urlParams.toString();
+            document.head.appendChild(script);
+            
+            // Timeout
+            setTimeout(() => {
+                if (window[callbackName]) {
+                    delete window[callbackName];
+                    if (document.head.contains(script)) {
+                        document.head.removeChild(script);
+                    }
+                    callback({ success: false, message: 'Timeout error' });
+                }
+            }, 10000);
+        }
+        
+        // MODAL İŞLEMLERİ
+        function girisModalAc() {
+            document.getElementById('girisModal').style.display = 'block';
+        }
+        
+        function kayitModalAc() {
+            document.getElementById('kayitModal').style.display = 'block';
+        }
+        
+        function modalKapat(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // GİRİŞ YAP - ÇALIŞIYOR
+        function girisYap() {
+            const email = document.getElementById('girisEmail').value.trim();
+            const sifre = document.getElementById('girisSifre').value;
+            
+            if (!email || !sifre) {
+                alert('Email ve şifre gerekli!');
+                return;
+            }
+            
+            const btn = document.getElementById('girisButton');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> Giriş yapılıyor...';
+            btn.disabled = true;
+            
+            callGoogleScript('girisYap', { email, sifre }, function(response) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                console.log('Giriş yanıtı:', response);
+                
+                if (response.success) {
+                    mevcutKullanici = response.kullanici;
+                    modalKapat('girisModal');
+                    kullaniciBilgileriniGoster();
+                    siralamayiYukle();
+                    anketiYukle();
+                    alert('Hoş geldin ' + mevcutKullanici.adi + '!');
+                } else {
+                    alert('HATA: ' + response.message);
+                }
+            });
+        }
+        
+        // KAYIT OL - ÇALIŞIYOR
+        function kayitOl() {
+            const email = document.getElementById('kayitEmail').value.trim();
+            const sifre = document.getElementById('kayitSifre').value;
+            const adi = document.getElementById('kayitAdi').value.trim();
+            
+            if (!email || !sifre || !adi) {
+                alert('Tüm alanları doldurun!');
+                return;
+            }
+            
+            const btn = document.getElementById('kayitButton');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> Kaydediliyor...';
+            btn.disabled = true;
+            
+            callGoogleScript('kayitOl', { email, sifre, kullaniciAdi: adi }, function(response) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                console.log('Kayıt yanıtı:', response);
+                
+                if (response.success) {
+                    mevcutKullanici = response.kullanici;
+                    modalKapat('kayitModal');
+                    kullaniciBilgileriniGoster();
+                    siralamayiYukle();
+                    anketiYukle();
+                    alert('Kayıt başarılı! Hoş geldin ' + mevcutKullanici.adi + '!');
+                } else {
+                    alert('HATA: ' + response.message);
+                }
+            });
+        }
+        
+        // KULLANICI BİLGİLERİNİ GÖSTER
+        function kullaniciBilgileriniGoster() {
+            if (!mevcutKullanici) return;
+            
+            document.getElementById('kullaniciPanel').style.display = 'block';
+            document.getElementById('siralama').style.display = 'block';
+            document.getElementById('anket').style.display = 'block';
+            
+            document.getElementById('kullaniciAdi').textContent = mevcutKullanici.adi;
+            document.getElementById('puan').textContent = mevcutKullanici.puan;
+            document.getElementById('streak').textContent = mevcutKullanici.streak + ' gün';
+        }
+        
+        // SIRALAMAYI YÜKLE
+        function siralamayiYukle() {
+            callGoogleScript('siralamayiGetir', {}, function(siralama) {
+                const tbody = document.querySelector('#siralamaTablosu tbody');
+                
+                if (!siralama || siralama.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;">Henüz sıralama yok</td></tr>';
+                    return;
+                }
+                
+                let html = '';
+                siralama.forEach(function(kullanici) {
+                    const isMe = mevcutKullanici && kullanici.email === mevcutKullanici.email;
+                    
+                    html += '<tr>' +
+                            '<td>' + kullanici.sira + '</td>' +
+                            '<td>' + kullanici.adi + (isMe ? ' (Siz)' : '') + '</td>' +
+                            '<td>' + kullanici.puan + '</td>' +
+                            '<td>' + kullanici.streak + ' gün</td>' +
+                            '</tr>';
+                });
+                
+                tbody.innerHTML = html;
+            });
+        }
+        
+        // ANKETİ YÜKLE
+        function anketiYukle() {
+            callGoogleScript('anketGetir', {}, function(response) {
+                const sorularDiv = document.getElementById('sorular');
+                let html = '';
+                
+                response.sorular.forEach(function(soru, index) {
+                    html += '<div class="soru">' +
+                            '<h4>' + (index + 1) + '. ' + soru.soru + '</h4>';
+                    
+                    soru.secenekler.forEach(function(secenek) {
+                        html += '<div class="secenek">' +
+                                '<input type="radio" name="soru' + soru.id + '" value="' + secenek + '" required>' +
+                                '<label>' + secenek + '</label>' +
+                                '</div>';
+                    });
+                    
+                    html += '</div>';
+                });
+                
+                sorularDiv.innerHTML = html;
+            });
+        }
+        
+        // ANKET GÖNDER
+        function anketGonder() {
+            if (!mevcutKullanici) {
+                alert('Önce giriş yap!');
+                return;
+            }
+            
+            // Tüm sorular cevaplanmış mı?
+            for (let i = 1; i <= 5; i++) {
+                if (!document.querySelector('input[name="soru' + i + '"]:checked')) {
+                    alert('Tüm soruları cevapla!');
+                    return;
+                }
+            }
+            
+            if (confirm('100 puan kazanmak için anketi gönder?')) {
+                callGoogleScript('puanEkle', {
+                    email: mevcutKullanici.email,
+                    puanMiktar: 100
+                }, function(response) {
+                    if (response.success) {
+                        mevcutKullanici.puan = response.yeniPuan;
+                        kullaniciBilgileriniGoster();
+                        siralamayiYukle();
+                        alert('100 puan kazandın! Toplam: ' + response.yeniPuan + ' puan');
+                    } else {
+                        alert('Hata: ' + response.message);
+                    }
+                });
+            }
+        }
+        
+        // OYUNU AÇ
+        function oyunuAc() {
+            if (!mevcutKullanici) {
+                alert('Önce giriş yap!');
+                girisModalAc();
+                return;
+            }
+            
+            // BURAYA OYUN URL'Nİ YAZ
+            const oyunUrl = 'https://example.com/oyununuz';
+            window.open(oyunUrl, '_blank');
+        }
+        
+        // MODAL DIŞINA TIKLAYINCA KAPAT
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
     </script>
-    <script src="script.js"></script>
 </body>
 </html>
