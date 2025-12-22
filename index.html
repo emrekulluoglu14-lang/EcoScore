@@ -777,17 +777,10 @@ const GAME_URL = "https://emrekulluoglu14-lang.github.io/oyun/";
 ====================== */
 
 async function apiPost(payload){
-
-  const r = await fetch(SCRIPT_URL, {
-
-    method: "POST",
-
-    body: JSON.stringify(payload)
-
-  });
-
+  const url = new URL(SCRIPT_URL);
+  Object.keys(payload).forEach(k => url.searchParams.append(k, payload[k]));
+  const r = await fetch(url.toString());
   return r.json();
-
 }
 
 async function apiGet(params){
@@ -1637,5 +1630,6 @@ function renderLeaderboard(data){
 </body>
 
 </html>
+
 
 
