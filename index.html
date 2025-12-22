@@ -1,147 +1,946 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>Skor & Anket Pro</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skor & Anket Sistemi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
-<div class="container">
+  <div class="container">
+    <!-- ANA SAYFA (GİRİŞ/KAYIT) -->
+    <div class="main-page active" id="main-page">
+      <div class="left-section">
+        <div class="logo">
+          <i class="fas fa-trophy"></i>
+          <h1>Skor & Anket Pro</h1>
+        </div>
+        <div class="about-content">
+          <h2><i class="fas fa-users"></i> Hoş Geldiniz!</h2>
+          <p>Günlük anketler çöz, puan kazan, liderlik tablosunda yerini al ve oyunlara katıl!</p>
+          <div class="features">
+            <div class="feature-item">
+              <i class="fas fa-poll"></i>
+              <h4>Günlük Anketler</h4>
+              <p>Her gün 5 yeni soru ile puan kazan</p>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-fire"></i>
+              <h4>Streak Sistemi</h4>
+              <p>Üst üste günlerde aktif kal, bonus puan al</p>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-gamepad"></i>
+              <h4>Oyun Bağlantısı</h4>
+              <p>Anketleri tamamla, oyuna geç</p>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-chart-line"></i>
+              <h4>Liderlik Tablosu</h4>
+              <p>Skorunu diğerleriyle karşılaştır</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<!-- === SENİN GÖNDERDİĞİN HTML ARAYÜZ BURADA AYNEN KALIYOR === -->
-<!-- ⚠️ KISALTMADIM – CSS ve HTML DEĞİŞMEDİ -->
-<!-- (Senin gönderdiğin body + style aynen burada olacak) -->
-<!-- Sadece <script> kısmını aşağıdakiyle DEĞİŞTİR -->
+      <div class="right-section">
+        <div class="login-section">
+          <div class="form-header">
+            <button class="form-tab active" id="tab-login">Giriş Yap</button>
+            <button class="form-tab" id="tab-register">Kayıt Ol</button>
+          </div>
 
-<script>
-/* ================== AYARLAR ================== */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXcXmvUjdN_TPix_2AVeQ2sVlhv6pfnmL_N_6EmqkrScUc7sFRpMvNCq3zJ-RecKVD/exec";
-const GAME_URL = "https://emrekulluoglu14-lang.github.io/oyun/";
+          <div class="form-container active" id="login-form">
+            <h3><i class="fas fa-sign-in-alt"></i> Hesap Girişi</h3>
+            <div class="message" id="login-message"></div>
 
-/* ================== GLOBAL ================== */
-let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
-let dailyQuestions = [];
-let currentQuestion = 1;
-let surveyAnswers = {};
+            <div class="input-group">
+              <label for="login-username"><i class="fas fa-user"></i> Kullanıcı Adı</label>
+              <input type="text" id="login-username" placeholder="Kullanıcı adınızı girin">
+            </div>
 
-/* ================== SAYFA YÜKLENİNCE ================== */
-document.addEventListener("DOMContentLoaded", () => {
-  generateDailyQuestions();
-  if (currentUser) showDashboard();
-});
+            <div class="input-group">
+              <label for="login-password"><i class="fas fa-lock"></i> Şifre</label>
+              <input type="password" id="login-password" placeholder="Şifrenizi girin">
+            </div>
 
-/* ================== GİRİŞ ================== */
-async function loginUser() {
-  const username = document.getElementById("login-username").value.trim();
-  const password = document.getElementById("login-password").value;
+            <button class="btn" id="btn-login"><i class="fas fa-sign-in-alt"></i> Giriş Yap</button>
+          </div>
 
-  const res = await fetch(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "login",
-      name: username,
-      password: password
-    })
-  });
+          <div class="form-container" id="register-form">
+            <h3><i class="fas fa-user-plus"></i> Yeni Hesap</h3>
+            <div class="message" id="register-message"></div>
 
-  const data = await res.json();
+            <div class="input-group">
+              <label for="register-username"><i class="fas fa-user"></i> Kullanıcı Adı</label>
+              <input type="text" id="register-username" placeholder="En az 3 karakter">
+            </div>
 
-  if (!data.success) {
-    alert("Hatalı giriş");
-    return;
-  }
+            <div class="input-group">
+              <label for="register-password"><i class="fas fa-lock"></i> Şifre</label>
+              <input type="password" id="register-password" placeholder="En az 4 karakter">
+            </div>
 
-  currentUser = data.user;
-  localStorage.setItem("currentUser", JSON.stringify(currentUser));
-  showDashboard();
-}
+            <div class="input-group">
+              <label for="register-email"><i class="fas fa-envelope"></i> E-posta (opsiyonel)</label>
+              <input type="email" id="register-email" placeholder="email@example.com">
+            </div>
 
-/* ================== KAYIT ================== */
-async function registerUser() {
-  const username = document.getElementById("register-username").value.trim();
-  const password = document.getElementById("register-password").value;
-  const email = document.getElementById("register-email").value.trim();
+            <button class="btn btn-success" id="btn-register"><i class="fas fa-user-plus"></i> Kayıt Ol</button>
+          </div>
+        </div>
 
-  await fetch(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "register",
-      name: username,
-      password: password,
-      email: email
-    })
-  });
+        <div class="stats-section">
+          <div class="leaderboard-header">
+            <h3><i class="fas fa-crown"></i> Liderlik Tablosu</h3>
+            <button class="refresh-btn" id="btn-refresh"><i class="fas fa-sync-alt"></i> Yenile</button>
+          </div>
 
-  alert("Kayıt başarılı, giriş yapabilirsin");
-}
+          <div class="loading" id="loading-leaderboard">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Yükleniyor...</p>
+          </div>
 
-/* ================== DASHBOARD ================== */
-function showDashboard() {
-  document.getElementById("main-page").classList.remove("active");
-  document.getElementById("user-dashboard").classList.add("active");
-  document.getElementById("dashboard-username").innerText = currentUser.name;
-  document.getElementById("user-total-score").innerText = currentUser.score;
-  document.getElementById("user-streak").innerText = currentUser.streak;
-}
+          <div class="leaderboard-container" id="leaderboard-container" style="display:none">
+            <table>
+              <thead>
+                <tr><th class="rank">Sıra</th><th>Kullanıcı</th><th>Skor</th><th>Streak</th></tr>
+              </thead>
+              <tbody id="leaderboard-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
 
-/* ================== ANKET ================== */
-function generateDailyQuestions() {
-  dailyQuestions = [
-    { id: 1, q: "Günlük kaç saat uyursun?", o: ["4-6", "6-8", "8-10", "10+"] },
-    { id: 2, q: "En sevdiğin içecek?", o: ["Kahve", "Çay", "Su", "Meyve Suyu"] },
-    { id: 3, q: "Oyun türü?", o: ["Aksiyon", "Strateji", "Spor", "Puzzle"] },
-    { id: 4, q: "En verimli zaman?", o: ["Sabah", "Öğlen", "Akşam", "Gece"] },
-    { id: 5, q: "Hobin?", o: ["Kitap", "Spor", "Müzik", "Film"] }
-  ];
-}
+    <!-- KULLANICI PANELİ -->
+    <div class="user-dashboard" id="user-dashboard">
+      <div class="user-header">
+        <div class="user-info">
+          <div class="avatar">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <div class="user-details">
+            <h2 id="dashboard-username">Kullanıcı Adı</h2>
+            <p><i class="fas fa-calendar-day"></i> Hoş geldin! Bugün <span id="today-date"></span></p>
+          </div>
+        </div>
+        <button class="logout-btn" id="btn-dashboard-logout">
+          <i class="fas fa-sign-out-alt"></i> Çıkış
+        </button>
+      </div>
 
-async function submitSurvey() {
-  const score = 50;
-  currentUser.score += score;
-  localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      <div class="dashboard-content">
+        <div class="stats-column">
+          <div class="stat-card">
+            <div class="stat-header">
+              <i class="fas fa-star" style="color:#ffd700;"></i>
+              <h3>Skorun</h3>
+            </div>
+            <div class="stat-value" id="user-total-score">0</div>
+            <div class="stat-label">Toplam Puan</div>
+          </div>
 
-  await fetch(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "saveSurvey",
-      name: currentUser.name,
-      answers: surveyAnswers,
-      score: score
-    })
-  });
+          <div class="stat-card">
+            <div class="stat-header">
+              <i class="fas fa-fire" style="color:#ff6b35;"></i>
+              <h3>Streak</h3>
+            </div>
+            <div class="stat-value" id="user-streak">0</div>
+            <div class="stat-label">Üst Üste Gün</div>
+            <div class="streak-calendar" id="streak-calendar"></div>
+          </div>
 
-  await fetch(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "increment",
-      name: currentUser.name,
-      score: score
-    })
-  });
+          <div class="stat-card">
+            <div class="stat-header">
+              <i class="fas fa-trophy" style="color:#ffb347;"></i>
+              <h3>Sıralama</h3>
+            </div>
+            <div class="stat-value" id="user-rank">-</div>
+            <div class="stat-label">Genel Sıralamada</div>
+            <div class="rank-progress">
+              <div class="progress-bar" id="rank-progress-bar"></div>
+              <div class="progress-text" id="rank-progress-text"></div>
+            </div>
+          </div>
 
-  alert("Anket tamamlandı +50 puan");
-}
+          <div class="game-card">
+            <div class="game-header">
+              <i class="fas fa-gamepad"></i>
+              <h3>Oyun Zamanı!</h3>
+            </div>
+            <p>Anketleri tamamladıktan sonra oyuna geçebilirsin:</p>
+            <button class="btn-game" id="btn-go-to-game">
+              <i class="fas fa-play-circle"></i> OYUNU BAŞLAT
+            </button>
+            <p class="game-note"><i class="fas fa-info-circle"></i> Oyunu her gün 1 kez oynayabilirsin</p>
+          </div>
+        </div>
 
-/* ================== OYUN ================== */
-function goToGame() {
-  window.open(GAME_URL, "_blank");
+        <div class="survey-column">
+          <div class="survey-card">
+            <div class="survey-header">
+              <i class="fas fa-poll-h"></i>
+              <h3>Günlük Anket</h3>
+              <div class="survey-status" id="survey-status">
+                <span class="status-badge active">YENİ</span>
+              </div>
+            </div>
 
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "increment",
-      name: currentUser.name,
-      score: 25
-    })
-  });
+            <div class="survey-info">
+              <p><i class="fas fa-gift"></i> Bu anketi tamamlayarak <strong>50 puan</strong> kazanabilirsin!</p>
+              <p><i class="fas fa-clock"></i> Süre: 5 dakika</p>
+              <p><i class="fas fa-check-circle"></i> Durum: <span id="survey-completion">0/5 tamamlandı</span></p>
+            </div>
 
-  currentUser.score += 25;
-  localStorage.setItem("currentUser", JSON.stringify(currentUser));
-}
-</script>
+            <div class="survey-questions" id="survey-questions"></div>
 
+            <div class="survey-controls">
+              <button class="btn-survey" id="btn-prev-question" disabled>
+                <i class="fas fa-arrow-left"></i> Önceki
+              </button>
+              <div class="question-counter">
+                Soru <span id="current-question">1</span>/5
+              </div>
+              <button class="btn-survey" id="btn-next-question">
+                Sonraki <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+
+            <div class="survey-submit" id="survey-submit">
+              <button class="btn-submit" id="btn-submit-survey" disabled>
+                <i class="fas fa-paper-plane"></i> Anketi Tamamla ve Puan Al
+              </button>
+              <p class="survey-note"><i class="fas fa-lightbulb"></i> Tüm soruları cevapladığında buton aktif olacak</p>
+            </div>
+
+            <div class="survey-results" id="survey-results" style="display:none">
+              <h4><i class="fas fa-award"></i> Tebrikler!</h4>
+              <p>Anketi başarıyla tamamladın!</p>
+              <div class="result-score">
+                <i class="fas fa-coins"></i>
+                <span>Kazandığın Puan: <strong id="earned-points">50</strong></span>
+              </div>
+              <button class="btn-survey" id="btn-new-survey">
+                <i class="fas fa-redo"></i> Yarın Yeni Anket Bekle
+              </button>
+            </div>
+          </div>
+
+          <div class="tasks-card">
+            <div class="tasks-header">
+              <i class="fas fa-tasks"></i>
+              <h3>Günlük Görevler</h3>
+            </div>
+            <div class="tasks-list">
+              <div class="task-item">
+                <input type="checkbox" id="task-survey" checked disabled>
+                <label for="task-survey">Günlük anketi tamamla (50p)</label>
+              </div>
+              <div class="task-item">
+                <input type="checkbox" id="task-streak">
+                <label for="task-streak">7 gün üst üste aktif ol (100p)</label>
+              </div>
+              <div class="task-item">
+                <input type="checkbox" id="task-game">
+                <label for="task-game">Oyuna katıl (25p)</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+    body{background:linear-gradient(135deg,#1a237e 0%,#4a148c 100%);min-height:100vh;color:#333;padding:20px}
+    .container{max-width:1400px;margin:0 auto}
+    .main-page,.user-dashboard{display:none}
+    .main-page.active,.user-dashboard.active{display:block}
+
+    .main-page{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+    @media(max-width:1200px){.main-page{grid-template-columns:1fr}}
+    @media(max-width:768px){.main-page{padding:10px;gap:20px}}
+    .left-section{background:white;border-radius:20px;padding:40px;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
+    .logo{display:flex;align-items:center;gap:15px;margin-bottom:30px}
+    .logo i{font-size:2.5rem;color:#4a148c}
+    .logo h1{font-size:2rem;color:#1a237e}
+    .about-content h2{color:#1a237e;margin:25px 0 15px;display:flex;align-items:center;gap:10px}
+    .about-content p{line-height:1.8;margin-bottom:15px;color:#444}
+    .features{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin:25px 0}
+    @media(max-width:768px){.features{grid-template-columns:1fr}}
+    .feature-item{background:#f8f9ff;padding:20px;border-radius:12px;border-left:4px solid #4a148c}
+    .feature-item i{color:#4a148c;font-size:1.5rem;margin-bottom:10px}
+    .right-section{display:flex;flex-direction:column;gap:30px}
+    .login-section,.stats-section{background:white;border-radius:20px;padding:40px;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
+    @media(max-width:768px){.login-section,.stats-section{padding:25px}}
+    .form-header{display:flex;gap:10px;margin-bottom:25px}
+    .form-tab{flex:1;padding:15px;background:#f5f5f5;border:none;border-radius:10px;font-weight:600;color:#666;cursor:pointer}
+    .form-tab.active{background:linear-gradient(to right,#4a148c,#7b1fa2);color:white}
+    .form-container{display:none}
+    .form-container.active{display:block}
+    .input-group{margin-bottom:20px}
+    .input-group label{display:block;margin-bottom:8px;color:#555;font-weight:500;display:flex;align-items:center;gap:8px}
+    .input-group input{width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:10px;font-size:1rem}
+    .input-group input:focus{outline:none;border-color:#4a148c}
+    .btn{width:100%;padding:16px;background:linear-gradient(to right,#4a148c,#7b1fa2);color:white;border:none;border-radius:10px;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all 0.3s;margin-top:10px}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(74,20,140,0.3)}
+    .btn-success{background:linear-gradient(to right,#28a745,#20c997)}
+    .leaderboard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .refresh-btn{background:#4a148c;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px}
+    table{width:100%;border-collapse:collapse;margin-top:15px}
+    th{background:#f8f9ff;padding:15px;text-align:left;color:#1a237e;font-weight:600;border-bottom:2px solid #e0e0e0}
+    td{padding:15px;border-bottom:1px solid #eee}
+    tr:hover{background:#f9f9ff}
+    .rank{width:60px;text-align:center;font-weight:bold;color:#4a148c}
+    .loading{text-align:center;padding:40px;color:#666}
+    .loading i{font-size:3rem;color:#4a148c;margin-bottom:20px}
+    .message{padding:15px;border-radius:10px;margin:15px 0;display:none}
+    .message.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb;display:block}
+    .message.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;display:block}
+    .message.info{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb;display:block}
+
+    .user-dashboard{background:white;border-radius:20px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,0.2)}
+    .user-header{background:linear-gradient(135deg,#4a148c,#7b1fa2);color:white;padding:25px 40px;display:flex;justify-content:space-between;align-items:center}
+    .user-info{display:flex;align-items:center;gap:20px}
+    .avatar i{font-size:3.5rem}
+    .user-details h2{font-size:1.8rem;margin-bottom:5px}
+    .logout-btn{background:rgba(255,255,255,0.2);color:white;border:2px solid rgba(255,255,255,0.3);padding:12px 25px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:10px;font-weight:600}
+    .logout-btn:hover{background:rgba(255,255,255,0.3)}
+
+    .dashboard-content{display:grid;grid-template-columns:1fr 1.5fr;gap:30px;padding:40px}
+    @media(max-width:1200px){.dashboard-content{grid-template-columns:1fr}}
+
+    .stats-column{display:flex;flex-direction:column;gap:25px}
+    .stat-card{background:#f8f9ff;padding:25px;border-radius:15px;border-left:5px solid #4a148c}
+    .stat-header{display:flex;align-items:center;gap:15px;margin-bottom:20px}
+    .stat-header i{font-size:2rem}
+    .stat-header h3{color:#1a237e;font-size:1.3rem}
+    .stat-value{font-size:3.5rem;font-weight:bold;color:#4a148c;text-align:center;margin:10px 0}
+    .stat-label{text-align:center;color:#666;font-size:0.95rem}
+    .streak-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:20px}
+    .streak-day{background:#e0e0e0;border-radius:6px;padding:8px;text-align:center;font-size:0.85rem}
+    .streak-day.active{background:#ff6b35;color:white}
+    .rank-progress{margin-top:20px}
+    .progress-bar{height:10px;background:#e0e0e0;border-radius:5px;overflow:hidden}
+    .progress-bar::after{content:'';display:block;height:100%;background:#4a148c;width:0%;transition:width 0.5s}
+    .progress-text{text-align:center;margin-top:5px;color:#666;font-size:0.9rem}
+
+    .game-card{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:25px;border-radius:15px}
+    .game-header{display:flex;align-items:center;gap:15px;margin-bottom:15px}
+    .game-header i{font-size:2rem}
+    .game-header h3{font-size:1.5rem}
+    .game-card p{margin-bottom:15px;opacity:0.9}
+    .btn-game{width:100%;padding:18px;background:white;color:#4a148c;border:none;border-radius:10px;font-size:1.2rem;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:15px;transition:all 0.3s}
+    .btn-game:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(0,0,0,0.2)}
+    .game-note{font-size:0.85rem;opacity:0.8;margin-top:15px;text-align:center}
+
+    .survey-card{background:white;border-radius:15px;padding:30px;box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:25px}
+    .survey-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;border-bottom:2px solid #f0f0f0;padding-bottom:15px}
+    .survey-header i{font-size:2rem;color:#4a148c}
+    .survey-header h3{color:#1a237e;font-size:1.5rem}
+    .status-badge{background:#28a745;color:white;padding:8px 15px;border-radius:20px;font-size:0.9rem;font-weight:600}
+    .survey-info{background:#f8f9ff;padding:20px;border-radius:10px;margin-bottom:25px}
+    .survey-info p{margin-bottom:10px;display:flex;align-items:center;gap:10px}
+    .survey-questions{margin-bottom:25px}
+    .question-item{margin-bottom:20px;padding:20px;background:#f8f9ff;border-radius:10px}
+    .question-text{font-weight:600;margin-bottom:15px;color:#1a237e}
+    .question-options{display:flex;flex-direction:column;gap:12px}
+    .option-label{display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:8px;cursor:pointer;border:2px solid #e0e0e0}
+    .option-label:hover{border-color:#4a148c}
+    .option-label.selected{border-color:#4a148c;background:#f0e6ff}
+    .option-label input{display:none}
+    .survey-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+    .btn-survey{padding:12px 25px;background:#4a148c;color:white;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px}
+    .btn-survey:disabled{background:#cccccc;cursor:not-allowed}
+    .question-counter{font-weight:600;color:#1a237e;font-size:1.1rem}
+    .survey-submit{text-align:center}
+    .btn-submit{padding:20px;background:linear-gradient(to right,#28a745,#20c997);color:white;border:none;border-radius:10px;font-size:1.2rem;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:15px;width:100%}
+    .btn-submit:disabled{background:#cccccc;cursor:not-allowed}
+    .survey-note{font-size:0.9rem;color:#666;margin-top:10px;text-align:center}
+    .survey-results{background:#d4edda;padding:25px;border-radius:10px;text-align:center}
+    .survey-results h4{color:#155724;margin-bottom:15px}
+    .result-score{background:white;padding:15px;border-radius:8px;margin:20px 0;display:inline-flex;align-items:center;gap:15px}
+    .tasks-card{background:white;border-radius:15px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,0.1)}
+    .tasks-header{display:flex;align-items:center;gap:15px;margin-bottom:20px}
+    .tasks-header i{font-size:1.8rem;color:#4a148c}
+    .tasks-header h3{color:#1a237e}
+    .tasks-list{display:flex;flex-direction:column;gap:15px}
+    .task-item{display:flex;align-items:center;gap:15px}
+    .task-item input[type="checkbox"]{width:20px;height:20px}
+    .task-item label{flex:1}
+    @media(max-width:768px){
+      .dashboard-content{padding:25px}
+      .survey-controls{flex-direction:column;gap:15px}
+      .user-header{flex-direction:column;gap:20px;text-align:center}
+    }
+  </style>
+
+  <script>
+    // =========================
+    // CONFIG
+    // =========================
+    const SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE'; // <-- Apps Script Web App /exec URL
+    const GAME_URL   = 'https://senin-oyun-linkin.com';
+
+    // =========================
+    // STATE
+    // =========================
+    let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+    // local fallback for streak history (UI için). asıl skor/streak Sheets'te.
+    let streakData = JSON.parse(localStorage.getItem('streakData')) || {};
+    let currentQuestion = 1;
+    let surveyAnswers = {};
+    let dailyQuestions = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+      generateDailyQuestions();
+      setTodayDate();
+      loadLeaderboard();
+    });
+
+    function setTodayDate() {
+      const today = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('today-date').textContent = today.toLocaleDateString('tr-TR', options);
+    }
+
+    // =========================
+    // INIT
+    // =========================
+    function initApp() {
+      document.getElementById('tab-login').addEventListener('click', () => switchTab('login'));
+      document.getElementById('tab-register').addEventListener('click', () => switchTab('register'));
+      document.getElementById('btn-login').addEventListener('click', loginUser);
+      document.getElementById('btn-register').addEventListener('click', registerUser);
+      document.getElementById('btn-refresh').addEventListener('click', loadLeaderboard);
+
+      document.getElementById('login-username').addEventListener('keypress', (e) => e.key === 'Enter' && loginUser());
+      document.getElementById('login-password').addEventListener('keypress', (e) => e.key === 'Enter' && loginUser());
+
+      document.getElementById('btn-dashboard-logout').addEventListener('click', logoutUser);
+      document.getElementById('btn-go-to-game').addEventListener('click', goToGame);
+      document.getElementById('btn-prev-question').addEventListener('click', prevQuestion);
+      document.getElementById('btn-next-question').addEventListener('click', nextQuestion);
+      document.getElementById('btn-submit-survey').addEventListener('click', submitSurvey);
+      document.getElementById('btn-new-survey').addEventListener('click', loadSurvey);
+
+      if (currentUser) {
+        showDashboard();
+        loadUserDataFromServer();
+      } else {
+        showMainPage();
+      }
+    }
+
+    // =========================
+    // VIEW SWITCH
+    // =========================
+    function showMainPage() {
+      document.getElementById('main-page').classList.add('active');
+      document.getElementById('user-dashboard').classList.remove('active');
+    }
+
+    function showDashboard() {
+      document.getElementById('main-page').classList.remove('active');
+      document.getElementById('user-dashboard').classList.add('active');
+      document.getElementById('dashboard-username').textContent = currentUser?.name || '';
+    }
+
+    function switchTab(tab) {
+      const loginForm = document.getElementById('login-form');
+      const regForm = document.getElementById('register-form');
+      const tabLogin = document.getElementById('tab-login');
+      const tabReg = document.getElementById('tab-register');
+
+      if (tab === 'login') {
+        loginForm.classList.add('active');
+        regForm.classList.remove('active');
+        tabLogin.classList.add('active');
+        tabReg.classList.remove('active');
+      } else {
+        loginForm.classList.remove('active');
+        regForm.classList.add('active');
+        tabLogin.classList.remove('active');
+        tabReg.classList.add('active');
+      }
+    }
+
+    // =========================
+    // MESSAGES
+    // =========================
+    function showMessage(elementId, message, type = 'info') {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      el.textContent = message;
+      el.className = 'message ' + type;
+      if (type !== 'info') {
+        setTimeout(() => {
+          el.className = 'message';
+          el.textContent = '';
+        }, 5000);
+      }
+    }
+
+    // =========================
+    // SERVER API
+    // expects Apps Script API:
+    // POST {action:'login'|'register'|'increment'|'updateStreak'|'setSurveyDate', ...}
+    // GET  ?action=leaderboard | ?action=user&username=
+    // =========================
+    async function apiGet(params) {
+      const url = new URL(SCRIPT_URL);
+      Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+      const res = await fetch(url.toString());
+      return await res.json();
+    }
+
+    async function apiPost(payload) {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      return await res.json();
+    }
+
+    // =========================
+    // AUTH
+    // =========================
+    async function loginUser() {
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      if (!username || !password) {
+        showMessage('login-message', 'Kullanıcı adı ve şifre gerekli', 'error');
+        return;
+      }
+
+      try {
+        const result = await apiPost({ action: 'login', name: username, password });
+
+        if (!result.success) {
+          showMessage('login-message', 'Kullanıcı adı veya şifre hatalı', 'error');
+          return;
+        }
+
+        currentUser = {
+          name: result.data.name,
+          score: Number(result.data.score || 0),
+          streak: Number(result.data.streak || 0),
+          rank: 0,
+          badge: getBadge(Number(result.data.score || 0))
+        };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+        initializeStreakData(username);
+        showDashboard();
+        showMessage('login-message', 'Giriş başarılı!', 'success');
+        await loadUserDataFromServer();
+      } catch (e) {
+        showMessage('login-message', 'Sunucuya bağlanılamadı', 'error');
+      }
+    }
+
+    async function registerUser() {
+      const username = document.getElementById('register-username').value.trim();
+      const password = document.getElementById('register-password').value;
+      const email = document.getElementById('register-email').value.trim();
+
+      if (!username || username.length < 3) { showMessage('register-message', 'Kullanıcı adı en az 3 karakter olmalı', 'error'); return; }
+      if (!password || password.length < 4) { showMessage('register-message', 'Şifre en az 4 karakter olmalı', 'error'); return; }
+
+      try {
+        const result = await apiPost({ action: 'register', name: username, password, email });
+
+        if (!result.success) {
+          if (result.error === 'username_taken') showMessage('register-message', 'Bu kullanıcı adı zaten kullanılıyor', 'error');
+          else showMessage('register-message', 'Kayıt başarısız', 'error');
+          return;
+        }
+
+        currentUser = { name: username, score: 0, streak: 0, rank: 0, badge: '🌱 YENİ' };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+        initializeStreakData(username);
+        showDashboard();
+        showMessage('register-message', 'Kayıt başarılı! Hoş geldiniz!', 'success');
+        await loadUserDataFromServer();
+        await loadLeaderboard();
+      } catch (e) {
+        showMessage('register-message', 'Sunucuya bağlanılamadı', 'error');
+      }
+    }
+
+    function logoutUser() {
+      currentUser = null;
+      localStorage.removeItem('currentUser');
+      showMainPage();
+      showMessage('login-message', 'Çıkış yapıldı', 'success');
+    }
+
+    function getBadge(score) {
+      if (score >= 1000) return "🏆 ŞAMPİYON";
+      if (score >= 500)  return "⭐ ALTIN";
+      if (score >= 250)  return "🥈 GÜMÜŞ";
+      if (score >= 100)  return "🥉 BRONZ";
+      return "🌱 YENİ";
+    }
+
+    // =========================
+    // USER DATA
+    // =========================
+    async function loadUserDataFromServer() {
+      if (!currentUser) return;
+
+      try {
+        const result = await apiGet({ action: 'user', username: currentUser.name });
+        if (result.success) {
+          currentUser.score = Number(result.data.score || 0);
+          currentUser.streak = Number(result.data.streak || 0);
+          currentUser.badge = getBadge(currentUser.score);
+          localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        }
+      } catch (e) {
+        // offline: keep local currentUser
+      }
+
+      loadUserDataUI();
+      await loadLeaderboard();
+      checkDailySurvey();
+    }
+
+    function loadUserDataUI() {
+      if (!currentUser) return;
+
+      document.getElementById('dashboard-username').textContent = currentUser.name;
+      document.getElementById('user-total-score').textContent = currentUser.score;
+      document.getElementById('user-streak').textContent = currentUser.streak;
+      document.getElementById('user-rank').textContent = currentUser.rank > 0 ? `#${currentUser.rank}` : '-';
+
+      updateStreakCalendar();
+      updateRankProgress();
+    }
+
+    // =========================
+    // STREAK (UI history local; source of truth streak value is server)
+    // =========================
+    function initializeStreakData(username) {
+      if (!streakData[username]) {
+        streakData[username] = {
+          history: {}
+        };
+        localStorage.setItem('streakData', JSON.stringify(streakData));
+      }
+      markTodayInLocalHistory(username);
+    }
+
+    function markTodayInLocalHistory(username) {
+      const today = new Date().toDateString();
+      streakData[username] = streakData[username] || { history: {} };
+      streakData[username].history[today] = true;
+      localStorage.setItem('streakData', JSON.stringify(streakData));
+    }
+
+    async function updateStreakOnServer() {
+      if (!currentUser) return;
+      try {
+        await apiPost({
+          action: 'updateStreak',
+          name: currentUser.name,
+          streak: currentUser.streak,
+          lastActiveDate: new Date().toDateString()
+        });
+      } catch (e) {}
+    }
+
+    function updateStreakCalendar() {
+      if (!currentUser) return;
+
+      const calendar = document.getElementById('streak-calendar');
+      calendar.innerHTML = '';
+
+      const days = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+      const today = new Date();
+      const hist = (streakData[currentUser.name]?.history) || {};
+
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(today.getDate() - i);
+        const dStr = d.toDateString();
+        const dayOfWeek = days[d.getDay() === 0 ? 6 : d.getDay() - 1];
+
+        const el = document.createElement('div');
+        el.className = 'streak-day';
+        el.textContent = dayOfWeek;
+
+        if (i === 0) el.style.border = '2px solid #ff6b35';
+        if (hist[dStr]) el.classList.add('active');
+
+        calendar.appendChild(el);
+      }
+    }
+
+    // =========================
+    // RANK PROGRESS
+    // =========================
+    function updateRankProgress() {
+      const progressBar = document.getElementById('rank-progress-bar');
+      const progressText = document.getElementById('rank-progress-text');
+
+      if (!currentUser || currentUser.rank <= 0) {
+        progressBar.style.width = '0%';
+        progressText.textContent = 'Sıralamaya henüz girmedin';
+        return;
+      }
+
+      if (currentUser.rank <= 10) {
+        progressBar.style.width = '100%';
+        progressText.textContent = `İlk 10'da! #${currentUser.rank}`;
+      } else {
+        const progress = Math.max(0, Math.min(100, (100 - currentUser.rank) / 2));
+        progressBar.style.width = progress + '%';
+        progressText.textContent = `#${currentUser.rank}. sıradasın`;
+      }
+    }
+
+    // =========================
+    // DAILY QUESTIONS
+    // =========================
+    function generateDailyQuestions() {
+      dailyQuestions = [
+        { id: 1, question: "Günlük kaç saat uyku uyursun?", options: ["4-6 saat", "6-8 saat", "8-10 saat", "10+ saat"] },
+        { id: 2, question: "En sevdiğin içecek hangisi?", options: ["Kahve", "Çay", "Su", "Meyve Suyu"] },
+        { id: 3, question: "Hangi tür oyunları tercih edersin?", options: ["Strateji", "Aksiyon", "Spor", "Bulmaca"] },
+        { id: 4, question: "Günün en verimli saatleri?", options: ["Sabah", "Öğlen", "Akşam", "Gece"] },
+        { id: 5, question: "Hobilerinden biri nedir?", options: ["Kitap okumak", "Spor yapmak", "Müzik dinlemek", "Film izlemek"] }
+      ];
+    }
+
+    // =========================
+    // SURVEY
+    // =========================
+    function checkDailySurvey() {
+      if (!currentUser) return;
+      // client-side: always allow new survey UI; server blocks by lastSurveyDate if you implement it there.
+      loadSurvey();
+    }
+
+    function loadSurvey() {
+      currentQuestion = 1;
+      surveyAnswers = {};
+
+      document.getElementById('survey-results').style.display = 'none';
+      document.getElementById('survey-questions').style.display = 'block';
+      document.getElementById('survey-submit').style.display = 'block';
+
+      showQuestion(currentQuestion);
+
+      document.getElementById('survey-completion').textContent = '0/5 tamamlandı';
+      document.getElementById('survey-status').innerHTML = '<span class="status-badge active">DEVAM EDİYOR</span>';
+      document.getElementById('btn-submit-survey').disabled = true;
+    }
+
+    function showQuestion(questionNumber) {
+      const q = dailyQuestions[questionNumber - 1];
+      const container = document.getElementById('survey-questions');
+
+      container.innerHTML = `
+        <div class="question-item">
+          <div class="question-text">${q.question}</div>
+          <div class="question-options">
+            ${q.options.map((opt, idx) => `
+              <label class="option-label ${surveyAnswers[q.id] === idx ? 'selected' : ''}">
+                <input type="radio" name="question-${q.id}" value="${idx}"
+                  ${surveyAnswers[q.id] === idx ? 'checked' : ''}
+                  onchange="selectAnswer(${q.id}, ${idx})">
+                ${opt}
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('current-question').textContent = questionNumber;
+      document.getElementById('btn-prev-question').disabled = questionNumber === 1;
+      document.getElementById('btn-next-question').disabled = questionNumber === 5;
+
+      checkSurveyCompletion();
+    }
+
+    // IMPORTANT: no "event" dependency
+    function selectAnswer(questionId, optionIndex) {
+      surveyAnswers[questionId] = optionIndex;
+
+      document.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
+      const input = document.querySelector(`input[name="question-${questionId}"][value="${optionIndex}"]`);
+      if (input) input.closest('.option-label').classList.add('selected');
+
+      checkSurveyCompletion();
+    }
+    window.selectAnswer = selectAnswer; // inline onchange needs it
+
+    function checkSurveyCompletion() {
+      const answered = Object.keys(surveyAnswers).length;
+      const total = dailyQuestions.length;
+
+      document.getElementById('survey-completion').textContent = `${answered}/${total} tamamlandı`;
+      document.getElementById('btn-submit-survey').disabled = answered !== total;
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 1) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < 5) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+      }
+    }
+
+    async function submitSurvey() {
+      if (!currentUser) return;
+
+      const surveyScore = 50;
+
+      try {
+        // increment score on server
+        const inc = await apiPost({ action: 'increment', name: currentUser.name, score: surveyScore });
+        if (inc.success && inc.data && typeof inc.data.score !== 'undefined') {
+          currentUser.score = Number(inc.data.score);
+        } else {
+          // fallback local if server response doesn't include new total
+          currentUser.score = Number(currentUser.score || 0) + surveyScore;
+        }
+
+        // mark survey date on server (optional endpoint)
+        await apiPost({ action: 'setSurveyDate', name: currentUser.name, lastSurveyDate: new Date().toDateString() });
+
+      } catch (e) {
+        // offline fallback
+        currentUser.score = Number(currentUser.score || 0) + surveyScore;
+      }
+
+      // local + UI
+      currentUser.badge = getBadge(currentUser.score);
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+      // local history + streak increase (client side)
+      markTodayInLocalHistory(currentUser.name);
+      currentUser.streak = Number(currentUser.streak || 0) + 1;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      await updateStreakOnServer();
+
+      showSurveyResults(surveyScore);
+    }
+
+    function showSurveyResults(score) {
+      document.getElementById('survey-questions').style.display = 'none';
+      document.getElementById('survey-submit').style.display = 'none';
+
+      const results = document.getElementById('survey-results');
+      results.style.display = 'block';
+
+      document.getElementById('earned-points').textContent = score;
+      document.getElementById('survey-status').innerHTML = '<span class="status-badge" style="background:#28a745">TAMAMLANDI</span>';
+      document.getElementById('survey-completion').textContent = '5/5 tamamlandı';
+
+      loadUserDataUI();
+      loadLeaderboard();
+    }
+
+    // =========================
+    // GAME
+    // =========================
+    async function goToGame() {
+      if (!confirm('Oyuna yönlendirileceksin. Emin misin?')) return;
+
+      window.open(GAME_URL, '_blank');
+
+      document.getElementById('task-game').checked = true;
+
+      // bonus points
+      const bonus = 25;
+      try {
+        const inc = await apiPost({ action: 'increment', name: currentUser.name, score: bonus });
+        if (inc.success && inc.data && typeof inc.data.score !== 'undefined') {
+          currentUser.score = Number(inc.data.score);
+        } else {
+          currentUser.score = Number(currentUser.score || 0) + bonus;
+        }
+      } catch (e) {
+        currentUser.score = Number(currentUser.score || 0) + bonus;
+      }
+
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      loadUserDataUI();
+      loadLeaderboard();
+      showMessage('login-message', 'Oyun görevi tamamlandı! +25 puan', 'success');
+    }
+
+    // =========================
+    // LEADERBOARD (server)
+    // =========================
+    async function loadLeaderboard() {
+      try {
+        document.getElementById('loading-leaderboard').style.display = 'block';
+        document.getElementById('leaderboard-container').style.display = 'none';
+
+        const result = await apiGet({ action: 'leaderboard' });
+        if (!result.success) throw new Error(result.error || 'leaderboard_error');
+
+        renderLeaderboard(result.data || []);
+
+        // currentUser rank update if in top10
+        if (currentUser) {
+          const me = (result.data || []).find(u => u.name === currentUser.name);
+          if (me) {
+            currentUser.rank = me.rank;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+          }
+          loadUserDataUI();
+        }
+
+        document.getElementById('loading-leaderboard').style.display = 'none';
+        document.getElementById('leaderboard-container').style.display = 'block';
+      } catch (e) {
+        document.getElementById('loading-leaderboard').style.display = 'none';
+        console.error(e);
+      }
+    }
+
+    function renderLeaderboard(data) {
+      const tbody = document.getElementById('leaderboard-body');
+      tbody.innerHTML = '';
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;color:#666">Henüz veri yok</td></tr>';
+        updateRankProgress();
+        return;
+      }
+
+      data.forEach((user, index) => {
+        const row = document.createElement('tr');
+        if (currentUser && user.name === currentUser.name) row.style.background = 'rgba(74, 20, 140, 0.1)';
+
+        row.innerHTML = `
+          <td class="rank">${index + 1} ${index < 3 ? ['🥇','🥈','🥉'][index] : ''}</td>
+          <td><strong>${user.name}</strong>${currentUser && user.name === currentUser.name ? ' (Siz)' : ''}</td>
+          <td><strong>${Number(user.score || 0)}</strong></td>
+          <td><i class="fas fa-fire" style="color:#ff6b35"></i> ${Number(user.streak || 0)}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      updateRankProgress();
+    }
+  </script>
 </body>
 </html>
-
